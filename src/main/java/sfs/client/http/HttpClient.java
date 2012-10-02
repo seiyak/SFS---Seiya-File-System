@@ -74,15 +74,26 @@ public class HttpClient {
 	 */
 	private void open() throws IOException {
 
-		serverChannel = SocketChannel.open();
-		serverChannel.configureBlocking( false );
-		serverChannel.connect( new InetSocketAddress( serverAddress, port ) );
-
+		configure();
 		if ( !connectUpToMaxTrial() ) {
 			throw new ConnectException( "Could not connect to the server, " + serverAddress + " after " + maxTrial
 					+ " tries." );
 		}
+	}
 
+	/**
+	 * Configures serverChannel property before the connection is established.
+	 */
+	private void configure() {
+
+		try {
+			serverChannel = SocketChannel.open();
+			serverChannel.configureBlocking( false );
+			serverChannel.connect( new InetSocketAddress( serverAddress, port ) );
+		}
+		catch ( IOException ex ) {
+			log.error( ex.getMessage() );
+		}
 	}
 
 	/**
@@ -98,31 +109,38 @@ public class HttpClient {
 
 		int count = maxTrial;
 		while ( count > 0 ) {
-			--count;
-
 			try {
-				while ( !serverChannel.finishConnect() ) {
-
-				}
-
-				if ( serverChannel.isConnected() ) {
+				if ( serverChannel.finishConnect() ) {
+					log.info( "connected to the server at: " + getServerHost() );
 					break;
 				}
 			}
 			catch ( IOException ex ) {
+
 				log.error( "can't connect to: " + serverAddress + " after " + ( maxTrial - count )
 						+ " trie(s) with interval: " + ( INTERVAL_BETWEEN_CONNECT_TRY / 1000 ) + " second" );
+
+				sleep();
+				configure();
 			}
 
-			try {
-				Thread.sleep( INTERVAL_BETWEEN_CONNECT_TRY );
-			}
-			catch ( InterruptedException e ) {
-
-			}
+			--count;
 		}
 
 		return serverChannel.isConnected();
+	}
+
+	/**
+	 * Sleeps.
+	 */
+	private void sleep() {
+
+		try {
+			Thread.sleep( INTERVAL_BETWEEN_CONNECT_TRY );
+		}
+		catch ( InterruptedException e ) {
+
+		}
 	}
 
 	/**
