@@ -12,19 +12,20 @@ public class Verb {
 		this.verb = verb;
 	}
 
-	public String getVerb() {
-		return verb;
-	}
-
 	@Override
 	public boolean equals(Object obj) {
 
 		if ( obj instanceof Verb ) {
 
 			Verb v = (Verb) obj;
-			return verb.equals( v.getVerb() );
+			return verb.equals( v.toString() );
 		}
 
 		return false;
+	}
+	
+	@Override
+	public String toString(){
+		return verb;
 	}
 }
