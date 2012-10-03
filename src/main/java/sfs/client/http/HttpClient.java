@@ -10,9 +10,11 @@ import org.apache.log4j.Logger;
 
 import sfs.cpuinfo.CPUInfo;
 import sfs.header.http.HeaderEntry;
+import sfs.header.http.RequestHeader;
 import sfs.header.http.ending.Ending;
 import sfs.header.http.separator.Separator;
 import sfs.mime.Mime;
+import sfs.request.http.RequestMessage;
 import sfs.verb.http.Verb;
 import sfs.writer.Writer;
 
@@ -151,12 +153,17 @@ public class HttpClient {
 	 * @throws IOException
 	 */
 	private void sendGreeting(String greeting) throws IOException {
+		
+		RequestMessage requestMessage = new RequestMessage();
+		String str = requestMessage.request( Verb.GET, "/" );
 
-		String str = Verb.GET.getVerb() + " /" + " " + HTTP_VERSION + HeaderEntry.ACCEPT + Separator.COLON + " "
-				+ Mime.HTML + Ending.CRLF + HeaderEntry.HOST + Separator.COLON + " " + getServerHost() + Ending.CRLF
-				+ HeaderEntry.GREETING + Separator.COLON + " " + greeting + Ending.CRLF
-				+ Ending.CRLF;
-
+		RequestHeader header = new RequestHeader();
+		header.put( HeaderEntry.ACCEPT, Mime.HTML );
+		header.put(HeaderEntry.HOST,getServerHost());
+		header.put(HeaderEntry.GREETING,greeting);
+		
+		str += header.format();
+		
 		log.info( "about to greeting with: " + str );
 		serverChannel.write( ByteBuffer.wrap( str.getBytes( "US-ASCII" ) ) );
 	}
