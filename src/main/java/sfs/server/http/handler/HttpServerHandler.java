@@ -30,15 +30,15 @@ public class HttpServerHandler implements HttpHandler {
 
 	private void doHandle(HttpExchange exchange) throws IOException {
 
-		if ( exchange.getRequestMethod().equalsIgnoreCase( Verb.GET.getVerb() ) ) {
+		if ( exchange.getRequestMethod().equalsIgnoreCase( Verb.GET.toString() ) ) {
 			// request method is 'GET'
 			doGet( exchange );
 		}
-		else if ( exchange.getRequestMethod().equalsIgnoreCase( Verb.POST.getVerb() ) ) {
+		else if ( exchange.getRequestMethod().equalsIgnoreCase( Verb.POST.toString() ) ) {
 			// request method is 'POST'
 			// TODO implement for 'POST'
 		}
-		else if ( exchange.getRequestMethod().equalsIgnoreCase( Verb.DELETE.getVerb() ) ) {
+		else if ( exchange.getRequestMethod().equalsIgnoreCase( Verb.DELETE.toString() ) ) {
 			// request method is 'DELETE'
 			// TODO implement for 'DELETE'
 		}
