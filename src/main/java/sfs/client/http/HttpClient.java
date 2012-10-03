@@ -24,7 +24,7 @@ public class HttpClient {
 	private final int maxTrial;
 	private SocketChannel serverChannel;
 	public static final String HTTP = "http://";
-	public static final String HTTP_VERSION = "HTTP/1.1" + Ending.CRLF.toString();
+	public static final String HTTP_VERSION = "HTTP/1.1" + Ending.CRLF;
 	private static final Logger log = Logger.getLogger( HttpClient.class );
 
 	public HttpClient(String serverAddress, int port) {
@@ -154,8 +154,8 @@ public class HttpClient {
 
 		String str = Verb.GET.getVerb() + " /" + " " + HTTP_VERSION + HeaderEntry.ACCEPT + Separator.COLON + " "
 				+ Mime.HTML + Ending.CRLF + HeaderEntry.HOST + Separator.COLON + " " + getServerHost() + Ending.CRLF
-				+ HeaderEntry.GREETING + Separator.COLON + " " + greeting + Ending.CRLF.toString()
-				+ Ending.CRLF.toString();
+				+ HeaderEntry.GREETING + Separator.COLON + " " + greeting + Ending.CRLF
+				+ Ending.CRLF;
 
 		log.info( "about to greeting with: " + str );
 		serverChannel.write( ByteBuffer.wrap( str.getBytes( "US-ASCII" ) ) );
