@@ -1,30 +1,85 @@
 package sfs.header.http.separator;
 
-public class Separator {
+import java.util.LinkedList;
+import java.util.List;
 
-	/**
-	 * TODO Use composite pattern to take care of concatenations of other separators.
-	 */
+public abstract class Separator {
+
+	private final List<Separator> separators;
 	private final String separator;
-	public static final Separator COLON = new Separator( ":" );
-	public static final Separator WHITE_SPACE = new Separator(" ");
-	public static final Separator SLASH = new Separator("/");
 
-	public Separator(String separator) {
+	protected Separator(String separator) {
+		separators = new LinkedList<Separator>();
 		this.separator = separator;
 	}
 
 	/**
-	 * Puts ': '. This is a convenient method to separate key and value on HTTP request header.
+	 * Adds Separator object to make composite separators.
 	 * 
-	 * @return Colon and a whitespace like ': '.
+	 * @param separator
+	 *            To be composite with this object.
+	 * @return this object.
 	 */
-	public static final String putColonAndWhiteSpace() {
-		return COLON.toString() + WHITE_SPACE.toString();
+	public Separator add(Separator separator) {
+
+		separators.add( separator );
+
+		return this;
+	}
+
+	/**
+	 * Removes Separator object.
+	 * 
+	 * @param separator
+	 *            Separator object to be removed.
+	 * @return
+	 */
+	public Separator remove(Separator separator) {
+
+		separators.remove( separator );
+
+		return this;
+	}
+
+	/**
+	 * Gets separator as String.
+	 * 
+	 * @return String representation of separator.
+	 */
+	public String getSeparator() {
+		return separator;
+	}
+
+	/**
+	 * Iterates and make composite with all the separators.
+	 * 
+	 * @return All the separators as String.
+	 */
+	private String getSeparators() {
+
+		String all = separator;
+
+		for ( Separator sep : separators ) {
+			all += sep.getSeparator();
+		}
+
+		return all;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+
+		if ( obj instanceof Separator ) {
+
+			Separator sep = (Separator) obj;
+			return toString().equals( sep.toString() );
+		}
+
+		return false;
 	}
 
 	@Override
 	public String toString() {
-		return separator;
+		return getSeparators();
 	}
 }
