@@ -9,8 +9,8 @@ import java.nio.channels.SocketChannel;
 import org.apache.log4j.Logger;
 
 import sfs.cpuinfo.CPUInfo;
-import sfs.header.http.HeaderEntry;
 import sfs.header.http.RequestHeader;
+import sfs.header.http.RequestHeaderEntry;
 import sfs.header.http.ending.Ending;
 import sfs.header.http.separator.Colon;
 import sfs.header.http.separator.Slash;
@@ -27,7 +27,6 @@ public class HttpClient {
 	private final int maxTrial;
 	private SocketChannel serverChannel;
 	public static final String HTTP = "http://";
-	public static final String HTTP_VERSION = "HTTP/1.1" + Ending.CRLF;
 	private static final Logger log = Logger.getLogger( HttpClient.class );
 
 	public HttpClient(String serverAddress, int port) {
@@ -159,9 +158,9 @@ public class HttpClient {
 		String str = requestMessage.request( Verb.GET, new Slash().getSeparator() );
 
 		RequestHeader header = new RequestHeader();
-		header.put( HeaderEntry.ACCEPT, Mime.HTML );
-		header.put(HeaderEntry.HOST,getServerHost());
-		header.put(HeaderEntry.GREETING,greeting);
+		header.put( RequestHeaderEntry.ACCEPT, Mime.HTML );
+		header.put(RequestHeaderEntry.HOST,getServerHost());
+		header.put(RequestHeaderEntry.GREETING,greeting);
 		
 		str += header.format();
 		
