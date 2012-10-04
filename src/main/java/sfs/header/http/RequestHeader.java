@@ -4,7 +4,8 @@ import java.util.Map.Entry;
 
 import sfs.header.Header;
 import sfs.header.http.ending.Ending;
-import sfs.header.http.separator.Separator;
+import sfs.header.http.separator.Colon;
+import sfs.header.http.separator.WhiteSpace;
 
 public class RequestHeader extends Header {
 
@@ -17,8 +18,8 @@ public class RequestHeader extends Header {
 
 		for ( Entry<HeaderEntry, Object> entry : getHeader().entrySet() ) {
 
-			headerEntries += entry.getKey() + Separator.putColonAndWhiteSpace() + entry.getValue().toString()
-					+ Ending.CRLF;
+			headerEntries += entry.getKey() + new Colon().add( new WhiteSpace() ).toString()
+					+ entry.getValue().toString() + Ending.CRLF;
 		}
 
 		// Following the HTTP header format.

@@ -12,7 +12,8 @@ import sfs.cpuinfo.CPUInfo;
 import sfs.header.http.HeaderEntry;
 import sfs.header.http.RequestHeader;
 import sfs.header.http.ending.Ending;
-import sfs.header.http.separator.Separator;
+import sfs.header.http.separator.Colon;
+import sfs.header.http.separator.Slash;
 import sfs.mime.Mime;
 import sfs.request.http.RequestMessage;
 import sfs.verb.http.Verb;
@@ -155,7 +156,7 @@ public class HttpClient {
 	private void sendGreeting(String greeting) throws IOException {
 		
 		RequestMessage requestMessage = new RequestMessage();
-		String str = requestMessage.request( Verb.GET, "/" );
+		String str = requestMessage.request( Verb.GET, new Slash().getSeparator() );
 
 		RequestHeader header = new RequestHeader();
 		header.put( HeaderEntry.ACCEPT, Mime.HTML );
@@ -175,7 +176,7 @@ public class HttpClient {
 	 */
 	private String getServerHost() {
 
-		return serverAddress + Separator.COLON.toString() + port;
+		return serverAddress + new Colon().getSeparator() + port;
 	}
 
 	/**
