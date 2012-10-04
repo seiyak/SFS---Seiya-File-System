@@ -10,6 +10,7 @@ import java.util.Map.Entry;
 import org.apache.log4j.Logger;
 
 import sfs.header.http.HeaderEntry;
+import sfs.header.http.RequestHeaderEntry;
 import sfs.mime.Mime;
 import sfs.verb.http.Verb;
 
@@ -75,7 +76,7 @@ public class HttpServerHandler implements HttpHandler {
 			log.info( "key: " + entry.getKey() + " : " + s );
 		}
 
-		String str = exchange.getRequestHeaders().getFirst( HeaderEntry.GREETING.toString() );
+		String str = exchange.getRequestHeaders().getFirst( RequestHeaderEntry.GREETING.toString() );
 
 		log.debug( "about to handle greeting with: " + str );
 
@@ -104,7 +105,7 @@ public class HttpServerHandler implements HttpHandler {
 			}
 		}
 
-		exchange.getResponseHeaders().set( HeaderEntry.CONTENT_TYPE.toString(), Mime.HTML.toString() );
+		exchange.getResponseHeaders().set( HeaderEntry.CONTENT_TYPE.toString(), Mime.JSON.toString() );
 		exchange.sendResponseHeaders( 200, cpuInfos.length() );
 		OutputStream out = exchange.getResponseBody();
 
