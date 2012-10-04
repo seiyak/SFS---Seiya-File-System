@@ -65,7 +65,7 @@ public abstract class Header {
 	public final String format() {
 
 		String headerEntries = doFormat();
-		logHEaderEntries( headerEntries );
+		logHeaderEntries( headerEntries );
 
 		return headerEntries;
 	}
@@ -76,7 +76,7 @@ public abstract class Header {
 	 * @param headerEntries
 	 *            All the header entries as String.
 	 */
-	private void logHEaderEntries(String headerEntries) {
+	private void logHeaderEntries(String headerEntries) {
 
 		log.info( "header looks like this:\n" + headerEntries );
 	}
