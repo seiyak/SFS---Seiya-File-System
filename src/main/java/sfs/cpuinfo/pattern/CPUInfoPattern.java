@@ -10,7 +10,7 @@ public class CPUInfoPattern {
 	private final Pattern pattern;
 	private final String CPUINFO_PATTERN = "^.*:.*";
 	private final String CPUINFO_SEPERATOR = ":";
-	private final String CPUINFO_KEY_REPLACEMENT = "\\s{2,}\\t*";
+	private final String CPUINFO_KEY_REPLACEMENT = "\\t*";
 	private Matcher matcher;
 
 	public CPUInfoPattern() {
