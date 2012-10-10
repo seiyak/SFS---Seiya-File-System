@@ -11,6 +11,7 @@ public class JsonWriter implements Writer {
 
 	protected JSONArray jsonArray;
 	protected Map<String, String> jsonMap;
+	protected Map<String,JSONArray> cpuInfoJson;
 
 	public void writeFrom(Entry entry) {
 		// TODO Auto-generated method stub

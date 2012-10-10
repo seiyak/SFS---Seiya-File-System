@@ -3,6 +3,7 @@ package sfs.cpuinfo.writer.json;
 import java.util.HashMap;
 
 import org.json.JSONArray;
+import org.json.JSONObject;
 
 import sfs.entry.Entry;
 import sfs.writer.json.JsonWriter;
@@ -28,6 +29,9 @@ public class CPUInfoJsonWriter extends JsonWriter {
 
 	@Override
 	public String get() {
-		return jsonArray.toString();
+		cpuInfoJson = new HashMap<String,JSONArray>();
+		cpuInfoJson.put( "cpuInfo", jsonArray);
+		
+		return new JSONObject(cpuInfoJson).toString();
 	}
 }
