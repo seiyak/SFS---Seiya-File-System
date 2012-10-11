@@ -92,24 +92,10 @@ public class GreetingHandler extends AbstractHandler {
 				cpuInfos += str + "\n";
 			}
 		}
-		
-		byte[] output = viewCreator.create( cpuInfos,
-				exchange.getRequestHeaders().getFirst( RequestHeaderEntry.HOST.toString() ), getClass()
-						.getClassLoader().getResource( ViewCreator.HTML_RESOUCE ) );
-		
-		exchange.getResponseHeaders().set( HeaderEntry.CONTENT_TYPE.toString(), Mime.HTML.toString() );
-		exchange.sendResponseHeaders( 200, output.length );
-		OutputStream out = exchange.getResponseBody();
-		try {
-			out.write( output );
-		}
-		catch ( IOException ex ) {
-			throw ex;
-		}
-		finally {
-			if ( out != null ) {
-				out.close();
-			}
-		}
+
+		setResponseHeaders( exchange, new sfs.entry.Entry[] { new sfs.entry.Entry( HeaderEntry.CONTENT_TYPE.toString(),
+				Mime.HTML.toString() ) } );
+		writeResponse( exchange, viewCreator.create( cpuInfos, getClass()
+						.getClassLoader().getResource( ViewCreator.HTML_RESOUCE ) ) );
 	}
 }
