@@ -2,24 +2,25 @@ package sfs.writer.json;
 
 import java.util.Map;
 
+import org.apache.log4j.Logger;
 import org.json.JSONArray;
 
-import sfs.entry.Entry;
 import sfs.writer.Writer;
 
-public class JsonWriter implements Writer {
+public abstract class JsonWriter implements Writer {
 
 	protected JSONArray jsonArray;
 	protected Map<String, String> jsonMap;
-	protected Map<String,JSONArray> cpuInfoJson;
+	private static Logger log = Logger.getLogger( JsonWriter.class );
 
-	public void writeFrom(Entry entry) {
-		// TODO Auto-generated method stub
+	protected JsonWriter(){
+
 	}
 
-	public String get() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+	public abstract Map<String, Object> getJsonAsMap();
 
+	public final Map.Entry<String, Object> getEntry() {
+
+		return getJsonAsMap().entrySet().iterator().next();
+	}
 }
