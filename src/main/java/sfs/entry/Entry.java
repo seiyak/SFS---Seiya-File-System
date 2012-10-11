@@ -1,5 +1,6 @@
 package sfs.entry;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -27,7 +28,7 @@ public class Entry {
 		Map<String, String> map = new HashMap<String, String>();
 		map.put( key, value );
 
-		return map;
+		return Collections.unmodifiableMap( map );
 	}
 
 	@Override
