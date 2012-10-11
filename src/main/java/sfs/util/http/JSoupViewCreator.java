@@ -14,13 +14,13 @@ public class JSoupViewCreator implements ViewCreator {
 	private Document document;
 	private static Logger log = Logger.getLogger( JSoupViewCreator.class );
 
-	public byte[] create(String data, String node, URL url) {
+	public byte[] create(String data, URL url) {
 
 		if ( parse( url ) ) {
 			// url is detected.
 			log.debug( "url, " + url + " is detected." );
 
-			return doCreate( data, node );
+			return doCreate( data );
 		}
 
 		return null;
@@ -42,10 +42,8 @@ public class JSoupViewCreator implements ViewCreator {
 		return false;
 	}
 
-	private byte[] doCreate(String data, String node) {
-		
-		log.debug( "node: " + node );
-		document.select( "#inspectHref" ).first().text( node );
+	private byte[] doCreate(String data) {
+
 		document.select( "div#cpuInfoJson" ).first().text( data );
 
 		log.debug( "hml looks like this:\n" + document.toString() );
