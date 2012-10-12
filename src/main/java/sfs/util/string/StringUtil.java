@@ -1,9 +1,9 @@
 package sfs.util.string;
 
-import java.util.HashMap;
+import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
-import sfs.header.http.separator.Equal;
 import sfs.header.http.separator.Slash;
 
 public class StringUtil {
@@ -37,7 +37,7 @@ public class StringUtil {
 	}
 
 	/**
-	 * Gets a Map based on the query string. Expects one simple query string like 'XXX=YYY'.
+	 * Gets a Map based on the query string.
 	 * 
 	 * @param query
 	 *            Query String like 'XXX=YYY'.
@@ -45,11 +45,36 @@ public class StringUtil {
 	 */
 	public static Map<String, String> getQueryAsMap(String query) {
 
-		Map<String, String> map = new HashMap<String, String>();
-		String[] each = query.split( new Equal().getSeparator() );
+		if ( ( query == null ) || ( query.length() == 0 ) ) {
+			return Collections.EMPTY_MAP;
+		}
 
-		map.put( each[0], each[1] );
+		Map<String, String> map = new LinkedHashMap<String, String>();
 
-		return map;
+		int current = 0, previous = 0;
+		String key = "", value = "";
+		while ( current < query.length() ) {
+
+			if ( query.charAt( current ) == '=' ) {
+				key = query.substring( previous, current );
+				previous = current + 1;
+				// found key value separator
+			}
+			else if ( query.charAt( current ) == '&' ) {
+				// found key value pair separatorS
+				value = query.substring( previous, current );
+				previous = current + 1;
+
+				map.put( key, value );
+			}
+			current++;
+		}
+
+		if ( query.charAt( previous - 1 ) == '=' ) {
+			// no '&' found
+			map.put( key, query.substring( previous, query.length() ) );
+		}
+
+		return Collections.unmodifiableMap( map );
 	}
 }
