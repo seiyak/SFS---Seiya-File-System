@@ -44,6 +44,19 @@ public class CPUInfo extends Concatenable{
 		return jsonWriter.get();
 	}
 
+	/**
+	 * Gets number of processors on the machine.
+	 * 
+	 * @return Number of processors.
+	 * @throws IOException
+	 */
+	public int getProcessors() throws IOException {
+
+		doGetCPUInfo();
+
+		return jsonWriter.getProcessors();
+	}
+
 	protected final void doGetCPUInfo() throws IOException {
 		BufferedReader reader = null;
 		try {

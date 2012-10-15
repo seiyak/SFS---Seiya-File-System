@@ -32,11 +32,22 @@ public class CPUInfoJsonWriter extends JsonWriter {
 		return new JSONObject(getJsonAsMap()).toString();
 	}
 
+	/**
+	 * Gets number of processors on the machine.
+	 * 
+	 * @return Number of processors.
+	 */
+	public int getProcessors() {
+
+		return (Integer) getJsonAsMap().get( "processors" );
+	}
+
 	@Override
 	public Map<String, Object> getJsonAsMap() {
 
 		Map<String, Object> cpuInfoJson = new HashMap<String, Object>();
 		cpuInfoJson.put( "cpuInfo", jsonArray );
+		cpuInfoJson.put( "processors", jsonArray.length() );
 
 		return cpuInfoJson;
 	}
