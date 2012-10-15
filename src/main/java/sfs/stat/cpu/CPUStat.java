@@ -7,6 +7,7 @@ public class CPUStat {
 	private double previousSystem;
 	private double previousIdle;
 	private double usage;
+	public static final String UNIT = "%";
 
 	public CPUStat() {
 
