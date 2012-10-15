@@ -4,5 +4,6 @@ import sfs.stat.cpu.CPUStat;
 
 public interface CPU {
 
-	CPUStat[] getCPUUsage();
+	public CPUStat[] getCPUUsage();
+	public CPUStat[] getFormattedCPUUsage();
 }
