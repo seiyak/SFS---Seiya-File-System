@@ -37,7 +37,7 @@ public class CPUInfoPattern {
 		while ( matcher.find() ) {
 			String[] each = matcher.group().split( CPUINFO_SEPERATOR );
 			try {
-				entry = new Entry( each[0].replaceAll( CPUINFO_KEY_REPLACEMENT, "" ), each[1] );
+				entry = new Entry( each[0].replaceAll( CPUINFO_KEY_REPLACEMENT, "" ), each[1].replaceFirst( " ", "" ) );
 			}
 			catch ( ArrayIndexOutOfBoundsException ex ) {
 				entry = new Entry( each[0].replaceAll( CPUINFO_KEY_REPLACEMENT, "" ), "" );
