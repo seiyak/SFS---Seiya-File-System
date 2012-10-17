@@ -7,6 +7,8 @@ import java.util.Map.Entry;
 
 import org.apache.log4j.Logger;
 
+import sfs.header.http.ending.Ending;
+import sfs.response.statuscode.StatusCode;
 import sfs.util.http.ViewCreator;
 
 import com.sun.net.httpserver.HttpExchange;
@@ -20,8 +22,8 @@ public abstract class AbstractHandler implements HttpHandler {
 	protected AbstractHandler(ViewCreator viewCreator) {
 		this.viewCreator = viewCreator;
 	}
-	
-	protected void getHeaderEntries(HttpExchange exchange){
+
+	protected void getHeaderEntries(HttpExchange exchange) {
 		for ( Entry<String, List<String>> entry : exchange.getRequestHeaders().entrySet() ) {
 
 			String s = "";
@@ -49,10 +51,10 @@ public abstract class AbstractHandler implements HttpHandler {
 			}
 		}
 	}
-	
-	protected final void writeResponse(HttpExchange exchange, byte[] output) throws IOException{
-		
-		exchange.sendResponseHeaders( 200, output.length );
+
+	protected final void writeResponse(HttpExchange exchange, byte[] output) throws IOException {
+
+		exchange.sendResponseHeaders( StatusCode._200.getNumber(), output.length );
 		OutputStream out = exchange.getResponseBody();
 		try {
 			out.write( output );
@@ -67,5 +69,19 @@ public abstract class AbstractHandler implements HttpHandler {
 				out.close();
 			}
 		}
+	}
+
+	/**
+	 * Gets message body from HTTP message.
+	 * 
+	 * @param message
+	 *            HTTP message where the message body is extracted.
+	 * @return
+	 *         Message body as String.
+	 */
+	protected final String getMessageBody(String message) {
+
+		String[] body = message.split( Ending.CRLF.toString() );
+		return body[body.length - 1];
 	}
 }
