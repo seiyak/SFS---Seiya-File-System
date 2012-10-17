@@ -4,8 +4,11 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.concurrent.Executors;
 
+import sfs.client.http.manager.NodeManager;
 import sfs.server.http.handler.GreetingHandler;
 import sfs.server.http.handler.InspectNodeHandler;
+import sfs.server.http.handler.ListActiveNodesHandler;
+import sfs.server.http.handler.WelcomeHandler;
 import sfs.util.http.JSoupViewCreator;
 import sfs.util.http.ViewCreator;
 
@@ -18,6 +21,7 @@ public class InteractiveServer implements HttpServerable {
 	private final int backLog;
 	private com.sun.net.httpserver.HttpServer server;
 	private final ViewCreator viewCreator;
+	private final NodeManager nodeManager;
 	private static final int DEFAULT_STOP_DELAY = 0;
 
 	public InteractiveServer(String host, int port) {
@@ -26,6 +30,7 @@ public class InteractiveServer implements HttpServerable {
 		this.port = port;
 		this.backLog = 0;
 		viewCreator = new JSoupViewCreator();
+		nodeManager = new NodeManager();
 	}
 
 	public InteractiveServer(String host, int port, int backLog) {
@@ -34,6 +39,7 @@ public class InteractiveServer implements HttpServerable {
 		this.port = port;
 		this.backLog = backLog;
 		viewCreator = new JSoupViewCreator();
+		nodeManager = new NodeManager();
 	}
 
 	public InteractiveServer(String host, int port, int backLog, ViewCreator viewCreator) {
@@ -42,6 +48,7 @@ public class InteractiveServer implements HttpServerable {
 		this.port = port;
 		this.backLog = backLog;
 		this.viewCreator = viewCreator;
+		nodeManager = new NodeManager();
 	}
 
 	public String getHost() {
@@ -99,9 +106,11 @@ public class InteractiveServer implements HttpServerable {
 	 * Sets context paths.
 	 */
 	protected void setContextPaths() {
-
-		server.createContext( "/greeting", new GreetingHandler( viewCreator ) );
+		
+		server.createContext( "/sfs", new WelcomeHandler(viewCreator) );
+		server.createContext( "/greeting", new GreetingHandler( nodeManager ) );
 		server.createContext( "/inspect/node", new InspectNodeHandler( viewCreator ) );
+		server.createContext("/list/activeNodes", new ListActiveNodesHandler(nodeManager));
 	}
 
 	/**
