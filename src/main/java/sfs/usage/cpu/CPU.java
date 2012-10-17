@@ -8,5 +8,5 @@ public interface CPU {
 
 	public CPUStat[] getCPUUsage();
 	public CPUStat[] getFormattedCPUUsage();
-	public Map<String,Double> getCPUUsageAsMap();
+	public Map<String,String> getCPUUsageAsMap();
 }

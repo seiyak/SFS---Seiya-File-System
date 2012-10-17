@@ -7,5 +7,5 @@ import sfs.stat.memory.MemoryStat;
 public interface Memory {
 
 	public MemoryStat getMemoryUsage();
-	public Map<String,Double> getMemoryUsageAsMap();
+	public Map<String,String> getMemoryUsageAsMap();
 }

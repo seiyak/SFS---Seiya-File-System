@@ -66,12 +66,12 @@ public class LinuxMemory extends LinuxUsageInfo implements Memory {
 	/**
 	 * Gets memory usage as Map.
 	 */
-	public Map<String, Double> getMemoryUsageAsMap() {
+	public Map<String, String> getMemoryUsageAsMap() {
 
 		doGetMemoryUsage();
-		Map<String, Double> map = new HashMap<String, Double>();
-		map.put( "total", memory.getTotalMemory() );
-		map.put( "current", memory.getCurrentMemory() );
+		Map<String, String> map = new HashMap<String, String>();
+		map.put( "total", String.valueOf( memory.getTotalMemory() ) + " " + MemoryStat.UNIT );
+		map.put( "current", String.valueOf( memory.getCurrentMemory() ) + " " + MemoryStat.UNIT );
 
 		return map;
 	}

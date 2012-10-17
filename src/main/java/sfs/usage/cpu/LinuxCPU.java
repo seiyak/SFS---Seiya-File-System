@@ -226,12 +226,12 @@ public class LinuxCPU extends LinuxUsageInfo implements CPU {
 	/**
 	 * Gets CPU usage as Map.
 	 */
-	public Map<String, Double> getCPUUsageAsMap() {
+	public Map<String, String> getCPUUsageAsMap() {
 
-		Map<String, Double> map = new HashMap<String, Double>();
+		Map<String, String> map = new HashMap<String, String>();
 		CPUStat[] stats = getFormattedCPUUsage();
 		for ( int i = 0; i < stats.length; i++ ) {
-			map.put( CPU_PREFIX + ( i + 1 ), stats[i].getUsage() );
+			map.put( CPU_PREFIX + ( i + 1 ), String.valueOf( stats[i].getUsage() ) + " " + CPUStat.UNIT );
 		}
 
 		return map;
