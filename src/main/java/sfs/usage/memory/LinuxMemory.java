@@ -2,10 +2,12 @@ package sfs.usage.memory;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
 
-import sfs.concatenable.usage.LinuxUsageInfo;
+import sfs.stat.LinuxUsageInfo;
 import sfs.stat.memory.MemoryStat;
 
 public class LinuxMemory extends LinuxUsageInfo implements Memory {
@@ -14,7 +16,7 @@ public class LinuxMemory extends LinuxUsageInfo implements Memory {
 	private static final String PROC_MEMINFO_ARGUMENT = "/proc/meminfo";
 	private static Logger log = Logger.getLogger( LinuxMemory.class );
 
-	protected LinuxMemory() {
+	public LinuxMemory() {
 		super( PROC_MEMINFO_ARGUMENT );
 		memory = new MemoryStat();
 		doGetMemoryUsage();
@@ -59,5 +61,18 @@ public class LinuxMemory extends LinuxUsageInfo implements Memory {
 				log.error( e );
 			}
 		}
+	}
+
+	/**
+	 * Gets memory usage as Map.
+	 */
+	public Map<String, Double> getMemoryUsageAsMap() {
+
+		doGetMemoryUsage();
+		Map<String, Double> map = new HashMap<String, Double>();
+		map.put( "total", memory.getTotalMemory() );
+		map.put( "current", memory.getCurrentMemory() );
+
+		return map;
 	}
 }
