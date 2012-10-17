@@ -3,22 +3,25 @@ package sfs.usage.cpu;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.text.DecimalFormat;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
 
 import sfs.concatenable.cpuinfo.CPUInfo;
-import sfs.concatenable.usage.LinuxUsageInfo;
 import sfs.header.http.separator.Space;
+import sfs.stat.LinuxUsageInfo;
 import sfs.stat.cpu.CPUStat;
 
 public class LinuxCPU extends LinuxUsageInfo implements CPU {
 
 	private CPUStat[] usages;
 	private final DecimalFormat decimalFormat;
+	private final String CPU_PREFIX = "CPU# ";
 	private static final String PROC_STAT_ARGUMENT = "/proc/stat";
 	private static Logger log = Logger.getLogger( LinuxCPU.class );
 
-	protected LinuxCPU() {
+	public LinuxCPU() {
 		super( PROC_STAT_ARGUMENT );
 		decimalFormat = new java.text.DecimalFormat( "#.#" );
 		initializeUsages();
@@ -218,5 +221,19 @@ public class LinuxCPU extends LinuxUsageInfo implements CPU {
 		}
 
 		return stats;
+	}
+
+	/**
+	 * Gets CPU usage as Map.
+	 */
+	public Map<String, Double> getCPUUsageAsMap() {
+
+		Map<String, Double> map = new HashMap<String, Double>();
+		CPUStat[] stats = getFormattedCPUUsage();
+		for ( int i = 0; i < stats.length; i++ ) {
+			map.put( CPU_PREFIX + ( i + 1 ), stats[i].getUsage() );
+		}
+
+		return map;
 	}
 }
