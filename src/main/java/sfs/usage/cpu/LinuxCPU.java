@@ -3,7 +3,7 @@ package sfs.usage.cpu;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.text.DecimalFormat;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
@@ -228,7 +228,7 @@ public class LinuxCPU extends LinuxUsageInfo implements CPU {
 	 */
 	public Map<String, String> getCPUUsageAsMap() {
 
-		Map<String, String> map = new HashMap<String, String>();
+		Map<String, String> map = new LinkedHashMap<String, String>();
 		CPUStat[] stats = getFormattedCPUUsage();
 		for ( int i = 0; i < stats.length; i++ ) {
 			map.put( CPU_PREFIX + ( i + 1 ), String.valueOf( stats[i].getUsage() ) + " " + CPUStat.UNIT );

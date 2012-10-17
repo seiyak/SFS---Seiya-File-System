@@ -2,7 +2,7 @@ package sfs.usage.memory;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
@@ -69,9 +69,9 @@ public class LinuxMemory extends LinuxUsageInfo implements Memory {
 	public Map<String, String> getMemoryUsageAsMap() {
 
 		doGetMemoryUsage();
-		Map<String, String> map = new HashMap<String, String>();
-		map.put( "total", String.valueOf( memory.getTotalMemory() ) + " " + MemoryStat.UNIT );
+		Map<String, String> map = new LinkedHashMap<String, String>();
 		map.put( "current", String.valueOf( memory.getCurrentMemory() ) + " " + MemoryStat.UNIT );
+		map.put( "total", String.valueOf( memory.getTotalMemory() ) + " " + MemoryStat.UNIT );
 
 		return map;
 	}
