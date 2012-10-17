@@ -42,11 +42,9 @@ public class JSoupViewCreator implements ViewCreator {
 		return false;
 	}
 
+	@Deprecated
 	private byte[] doCreate(String data) {
 
-		document.select( "div#cpuInfoJson" ).first().text( data );
-
-		log.debug( "hml looks like this:\n" + document.toString() );
 		return document.toString().getBytes();
 	}
 }
