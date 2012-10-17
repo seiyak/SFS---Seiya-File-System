@@ -7,9 +7,11 @@ import sfs.header.http.ending.Ending;
 import sfs.header.http.separator.Colon;
 import sfs.header.http.separator.WhiteSpace;
 
-public class ResponseHeader extends Header {
+public class HTTPHeader extends Header {
 
-	@Override
+	/**
+	 * Formats header and return it as String.
+	 */
 	protected String doFormat() {
 
 		String headerEntries = "";
@@ -17,10 +19,12 @@ public class ResponseHeader extends Header {
 		for ( Entry<HeaderEntry, Object> entry : getHeader().entrySet() ) {
 
 			headerEntries += entry.getKey() + new Colon().add( new WhiteSpace() ).toString()
-					+ entry.getValue().toString() + Ending.LF;
+					+ entry.getValue().toString() + Ending.CRLF;
 		}
+
+		// Following the HTTP header format.
+		headerEntries += Ending.CRLF;
 
 		return headerEntries;
 	}
-
 }
