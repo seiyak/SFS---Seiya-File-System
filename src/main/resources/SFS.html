@@ -1,0 +1,224 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<title>SFS - Seiya File System</title>
+<link rel="stylesheet"
+	href="http://code.jquery.com/ui/1.9.0/themes/base/jquery-ui.css" />
+<style type="text/css">
+.sfsDiv {
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #EED2EE),
+		color-stop(40%, #D8BFD8), color-stop(100%, #CDB5CD) );
+	background: -moz-linear-gradient(top, #EED2EE, #CDB5CD, #D8BFD8);
+	border-radius: 5px;
+	-webkit-border-radius: 5px;
+	-moz-border-radius: 5px;
+	box-shadow: 0 5px 20px #888;
+	-webkit-box-shadow: 0 5px 20px #888;
+	-moz-box-shadow: 0 5px 20px #888;
+}
+
+#menuDiv {
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #EED2EE),
+		color-stop(40%, #D8BFD8), color-stop(100%, #CDB5CD) );
+	background: -moz-linear-gradient(top, #EED2EE, #CDB5CD, #D8BFD8);
+	border-radius: 5px;
+	-webkit-border-radius: 5px;
+	-moz-border-radius: 5px;
+	line-height: 50px;
+	text-align: center;
+	margin: 0 auto;
+	padding: 0;
+	background: -moz-linear-gradient(top, #EED2EE, #CDB5CD, #D8BFD8);
+}
+
+.menu {
+	width: 900px;
+	height: 50px;
+	box-shadow: 0 5px 20px #888;
+	-webkit-box-shadow: 0 5px 20px #888;
+	-moz-box-shadow: 0 5px 20px #888;
+}
+
+ul {
+	padding: 0;
+}
+
+ul li {
+	list-style-type: none;
+	display: inline;
+	margin-right: 15px;
+}
+
+ul li a {
+	color: #fff;
+	text-decoration: none;
+	text-shadow: 1px 1px 1px #000;
+	padding: 3px 7px;
+	border-radius: 5px;
+	-webkit-border-radius: 5px;
+	-moz-border-radius: 5px;
+	-webkit-transition-property: color, background;
+	-webkit-transition-duration: 0.5s, 0.5s;
+}
+
+ul li a:hover {
+	color: #C9C9C9;
+}
+</style>
+</head>
+<body>
+	<div id="naviDiv" style="margin-bottom: 10px;">
+		<div id="menuDiv" class="menu ui-widget">
+			<ul>
+				<li><a id="activeNodes" href="#">Active Nodes</a></li>
+				<li><a id="about" href="#">About</a></li>
+			</ul>
+		</div>
+	</div>
+	<div id="nodeDiv" class="ui-widget">
+		<div id="cpuInfoDiv" class="ui-widget"></div>
+	</div>
+	<div id="inspectDiv" class="ui-widget"></div>
+
+	<script src="http://code.jquery.com/jquery-1.8.2.js"></script>
+	<script src="http://code.jquery.com/ui/1.9.0/jquery-ui.js"></script>
+	<script type="text/javascript">
+		var inspectInterval;
+		$(function() {
+
+			$("#activeNodes").click(function(event) {
+				clickActiveNodes(event);
+			});
+		});
+
+		function clickActiveNodes(event) {
+			$.getJSON("/list/activeNodes", function(json) {
+
+				$.each(json["cpuInfos"], function(key, value) {
+					console.log("key: " + key + " value: " + value
+							+ " value[port]: " + value["port"]);
+					createCpuInfoTable(key, value);
+				});
+			});
+		}
+
+		function createCpuInfoTable(key, json) {
+
+			removeCPUInfoTableDiv();
+
+			var cpuInfoArray = sortCpuInfoJson(json["cpuInfo"]);
+			var res = "<div id='cpuInfoTableDiv" + key + "' class='sfsDiv'><table id='cpuInfoTable" + key + "'>";
+			res += "<tr><td>node address</td><td id='nodeName" + key + "'><a id='inspectHref" + key + "' href='#'></a></td></tr><tr><td>port</td><td id='port" + key + "'></td></tr><tr><td># of CPUs</td><td id='numberOfCPUs" + key + "'></td></tr>";
+			var numberOfCPUs = 0;
+			$.each(cpuInfoArray, function(key, value) {
+
+				if (numberOfCPUs == 0) {
+
+					res += createTableElementWith("vendor_id", "vendor_id",
+							cpuInfoArray[key]["vendor_id"]);
+					res += createTableElementWith("cpu family", "cpu family",
+							cpuInfoArray[key]["cpu family"]);
+					res += createTableElementWith("model", "model",
+							cpuInfoArray[key]["model"]);
+					res += createTableElementWith("model name", "model name",
+							cpuInfoArray[key]["model name"]);
+					res += createTableElementWith("stepping", "stepping",
+							cpuInfoArray[key]["stepping"]);
+					res += createTableElementWith("microcode", "microcode",
+							cpuInfoArray[key]["microcode"]);
+					res += createTableElementWith("cpu MHz", "cpu MHz",
+							cpuInfoArray[key]["cpu MHz"]);
+					res += createTableElementWith("cache size", "cache size",
+							cpuInfoArray[key]["cache size"]);
+					res += createTableElementWith("fpu", "fpu",
+							cpuInfoArray[key]["fpu"]);
+				}
+
+				numberOfCPUs++;
+			});
+
+			res += "</table></div>";
+			$("#cpuInfoDiv").append(res);
+			$("#cpuInfoDiv").css("width", 500);
+			$("#numberOfCPUs" + key).text(numberOfCPUs);
+			$("#port" + key).text(json["port"]);
+			$("#inspectHref" + key).text(json["origin"]);
+			$("#inspectHref" + key).css("text-decoration", "none");
+
+			$("#inspectHref" + key).hover(function(event) {
+				event.preventDefault();
+				inspectInterval = setInterval(function() {
+					requestInspectNode(event, $("#port" + key).text())
+				}, 1000);
+			}, function(event) {
+				clearInterval(inspectInterval);
+				removeInspectTableDiv();
+			});
+
+			$("#cpuInfoTableDiv" + key).draggable();
+		}
+
+		function sortCpuInfoJson(json) {
+			;
+			json.sort(function(a, b) {
+				return parseInt(a["processor"] - b["processor"]);
+			});
+
+			return json;
+		}
+
+		function createTableElementWith(className, key, value) {
+
+			return "<tr class'= " + className + "'><td>" + key + "</td><td>"
+					+ value + "</td></tr>";
+		}
+
+		function requestInspectNode(node, port) {
+
+			$
+					.getJSON(
+							"/inspect/node",
+							{
+								"node" : node.target.text,
+								"port" : port
+							},
+							function(json) {
+
+								removeInspectTableDiv();
+
+								var msg = "<div id='inspectTableDiv'><div id='cpuUsage' class='sfsDiv ui-widget' style='margin-bottom:10px;'>CPU Usage<table>";
+								msg += createUsageTable(json["cpuUsage"])
+										+ "</div></table>";
+
+								msg += "<div id='memoryUsage' class='sfsDiv ui-widget'>Memory Usage<table>";
+								msg += createUsageTable(json["memoryUsage"])
+										+ "</div></table></div>";
+
+								$("#inspectDiv").append(msg);
+								$("#inspectDiv").css("position", "fixed");
+								$("#inspectDiv").css("left", node.pageX);
+								$("#inspectDiv").css("top", node.pageY);
+							});
+		}
+
+		function removeInspectTableDiv() {
+			$("#inspectTableDiv").remove();
+		}
+
+		function createUsageTable(usage) {
+
+			var msg = "";
+			$.each(usage, function(key, value) {
+				msg += "<tr><td>" + key + "</td><td>" + value + "</td></tr>";
+			});
+
+			return msg;
+		}
+
+		function removeCPUInfoTableDiv() {
+			$("#cpuInfoTableDiv").remove();
+		}
+	</script>
+</body>
+</html>
