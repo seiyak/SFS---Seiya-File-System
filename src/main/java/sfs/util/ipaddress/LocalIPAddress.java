@@ -13,7 +13,8 @@ import org.apache.log4j.Logger;
 import sfs.header.http.separator.Period;
 
 public class LocalIPAddress {
-
+	
+	private static final String VMNET_PREFIX = "vmnet";
 	private static Logger log = Logger.getLogger( LocalIPAddress.class );
 
 	/**
@@ -47,7 +48,8 @@ public class LocalIPAddress {
 			while ( interfaces.hasMoreElements() ) {
 				NetworkInterface networkInterface = interfaces.nextElement();
 
-				if ( !networkInterface.isUp() || networkInterface.isLoopback() || networkInterface.isVirtual() )
+				if ( ( networkInterface.getName().startsWith( VMNET_PREFIX ) )
+						|| ( !networkInterface.isUp() || networkInterface.isLoopback() || networkInterface.isVirtual() ) )
 					continue;
 				Enumeration<InetAddress> addresses = networkInterface.getInetAddresses();
 				while ( addresses.hasMoreElements() ) {
