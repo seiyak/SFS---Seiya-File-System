@@ -7,8 +7,10 @@ import java.util.Map.Entry;
 
 import org.apache.log4j.Logger;
 
+import sfs.header.http.HeaderEntry;
 import sfs.header.http.ending.Ending;
 import sfs.response.statuscode.StatusCode;
+import sfs.util.date.DateUtil;
 import sfs.util.http.ViewCreator;
 
 import com.sun.net.httpserver.HttpExchange;
@@ -54,9 +56,13 @@ public abstract class AbstractHandler implements HttpHandler {
 
 	protected final void writeResponse(HttpExchange exchange, byte[] output) throws IOException {
 
-		exchange.sendResponseHeaders( StatusCode._200.getNumber(), output.length );
-		OutputStream out = exchange.getResponseBody();
+		OutputStream out = null;
+
 		try {
+			exchange.getResponseHeaders().set( HeaderEntry.DATE.toString(), DateUtil.getTimeInGMT() );
+			exchange.sendResponseHeaders( StatusCode._200.getNumber(), output.length );
+
+			out = exchange.getResponseBody();
 			out.write( output );
 		}
 		catch ( IOException ex ) {
