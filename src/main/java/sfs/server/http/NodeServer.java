@@ -15,6 +15,7 @@ import org.apache.log4j.Logger;
 import sfs.concatenable.usage.cpu.CPUUsage;
 import sfs.concatenable.usage.memory.MemoryUsage;
 import sfs.header.http.HTTPHeader;
+import sfs.header.http.HeaderEntry;
 import sfs.header.http.RequestHeaderEntry;
 import sfs.header.http.RequestType;
 import sfs.header.http.ResponseHeaderEntry;
@@ -25,6 +26,7 @@ import sfs.response.http.ResponseMessage;
 import sfs.response.statuscode.StatusCode;
 import sfs.usage.cpu.CPU;
 import sfs.usage.cpu.LinuxCPU;
+import sfs.util.date.DateUtil;
 
 public class NodeServer implements Runnable {
 
@@ -121,7 +123,7 @@ public class NodeServer implements Runnable {
 
 		HTTPHeader header = new HTTPHeader();
 		header.put( ResponseHeaderEntry.CONTENT_TYPE, Mime.JSON );
-		header.put( ResponseHeaderEntry.DATE, getTimeInGMT() );
+		header.put( HeaderEntry.DATE, DateUtil.getTimeInGMT() );
 
 		String usage = new MemoryUsage().add( new CPUUsage(cpu) ).getJson();
 
@@ -131,29 +133,6 @@ public class NodeServer implements Runnable {
 		str += usage;
 
 		write( str, out );
-	}
-
-	/**
-	 * From http://stackoverflow.com/questions/308683/how-can-i-get-the-current-date-and-time-in-utc-or-gmt-in-java
-	 * 
-	 * @return
-	 */
-	private String getTimeInGMT() {
-		Calendar c = Calendar.getInstance();
-
-		TimeZone z = c.getTimeZone();
-		int offset = z.getRawOffset();
-		if ( z.inDaylightTime( new Date() ) ) {
-			offset = offset + z.getDSTSavings();
-		}
-		int offsetHrs = offset / 1000 / 60 / 60;
-		int offsetMins = offset / 1000 / 60 % 60;
-
-		c.add( Calendar.HOUR_OF_DAY, ( -offsetHrs ) );
-		c.add( Calendar.MINUTE, ( -offsetMins ) );
-
-		return c.getTime().toString();
-
 	}
 
 	private void write(String content, OutputStream out) throws IOException {
