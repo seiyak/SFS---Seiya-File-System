@@ -7,5 +7,5 @@ public interface ViewCreator {
 	public static final String HTML_RESOUCE = "SFS.html";
 	public static final String JAVASCRIPT_RESOURCE = "SFS.js";
 
-	public byte[] create(String data, URL url);
+	public byte[] create(URL url);
 }

@@ -14,13 +14,13 @@ public class JSoupViewCreator implements ViewCreator {
 	private Document document;
 	private static Logger log = Logger.getLogger( JSoupViewCreator.class );
 
-	public byte[] create(String data, URL url) {
+	public byte[] create(URL url) {
 
 		if ( parse( url ) ) {
 			// url is detected.
 			log.debug( "url, " + url + " is detected." );
 
-			return doCreate( data );
+			return doCreate();
 		}
 
 		return null;
@@ -42,9 +42,7 @@ public class JSoupViewCreator implements ViewCreator {
 		return false;
 	}
 
-	@Deprecated
-	private byte[] doCreate(String data) {
-
+	private byte[] doCreate() {
 		return document.toString().getBytes();
 	}
 }
