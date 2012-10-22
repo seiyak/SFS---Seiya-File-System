@@ -2,6 +2,8 @@ package sfs.request;
 
 import org.apache.log4j.Logger;
 
+import sfs.entry.Entry;
+import sfs.entry.HTTPHeaderEntry;
 import sfs.verb.http.Verb;
 
 public abstract class Request {
@@ -14,10 +16,7 @@ public abstract class Request {
 
 	public final String request(Verb verb, String resource) {
 
-		String requestStr = doRequest( verb, resource );
-		logRequest( requestStr );
-
-		return requestStr;
+		return doRequest( verb, resource );
 	}
 
 	private void logRequest(String requestStr) {
