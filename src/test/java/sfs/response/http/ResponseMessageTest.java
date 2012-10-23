@@ -39,6 +39,11 @@ public class ResponseMessageTest {
 		assertTrue( "getContent(): " + responseMessage.getContent() + "expecting: "
 				+ "{\"status\": \"OK\",\"message\": \"Welcome to SFS!\"}",
 				responseMessage.getContent().equals( "{\"status\": \"OK\",\"message\": \"Welcome to SFS!\"}" ) );
+		assertTrue( "expecting status=='OK' but found " + responseMessage.get( "status" ),
+				responseMessage.get( "status" ).equals( "OK" ) );
+		assertTrue( "expecting message==\"Welcome to SFS!\" but found "
+				+ responseMessage.get( "message" ),
+				responseMessage.get( "message" ).equals( "Welcome to SFS!" ) );
 	}
 
 	private void checkEachHeader(HTTPHeaderEntry[] expected, HTTPHeaderEntry[] res) {
