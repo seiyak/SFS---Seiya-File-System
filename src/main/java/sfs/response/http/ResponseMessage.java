@@ -26,6 +26,10 @@ public class ResponseMessage extends Response {
 	private String content;
 	private static Logger log = Logger.getLogger( ResponseMessage.class );
 	private static final String HTTP_VERSION = "HTTP/1.1";
+	public static final String KEY_HOST = "host";
+	public static final String KEY_PORT = "port";
+	public static final String KEY_MAX_TRIAL = "maxTrial";
+	public static final String KEY_NEXT_HOSTS = "nextHosts";
 	
 	public ResponseMessage(){
 		header = new LinkedList<HTTPHeaderEntry>();
