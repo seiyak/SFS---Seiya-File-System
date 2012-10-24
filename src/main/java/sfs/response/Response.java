@@ -6,6 +6,10 @@ import sfs.response.statuscode.StatusCode;
 
 public abstract class Response {
 
+	public static final String KEY_HOST = "host";
+	public static final String KEY_PORT = "port";
+	public static final String KEY_MAX_TRIAL = "maxTrial";
+	public static final String KEY_NEXT_HOSTS = "nextHosts";
 	private static Logger log = Logger.getLogger( Response.class );
 
 	protected Response() {
