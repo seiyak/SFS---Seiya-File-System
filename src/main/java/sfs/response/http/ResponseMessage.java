@@ -3,7 +3,13 @@ package sfs.response.http;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.apache.log4j.Logger;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import sfs.entry.HTTPHeaderEntry;
+import sfs.entry.HostEntry;
 import sfs.header.http.HeaderEntry;
 import sfs.header.http.ResponseHeaderEntry;
 import sfs.header.http.ending.Ending;
@@ -13,12 +19,13 @@ import sfs.response.statuscode.StatusCode;
 
 public class ResponseMessage extends Response {
 
-	private static final String HTTP_VERSION = "HTTP/1.1";
 	private String responseHTTPVersion;
 	private String statusCode;
 	private String reasonPhrase;
 	private final List<HTTPHeaderEntry> header;
 	private String content;
+	private static Logger log = Logger.getLogger( ResponseMessage.class );
+	private static final String HTTP_VERSION = "HTTP/1.1";
 	
 	public ResponseMessage(){
 		header = new LinkedList<HTTPHeaderEntry>();
@@ -126,5 +133,56 @@ public class ResponseMessage extends Response {
 
 	public String getReasonPhrase() {
 		return reasonPhrase;
+	}
+
+	/**
+	 * Gets a value for the specified key. The content is assume to be in JSON.
+	 * 
+	 * @param key
+	 *            Key in the JSON.
+	 * @return Corresponding value for the key.
+	 */
+	public Object get(String key) {
+
+		JSONObject json = null;
+		try {
+			json = new JSONObject( content );
+			return json.get( key );
+
+		}
+		catch ( JSONException ex ) {
+			log.error( ex );
+			return null;
+		}
+	}
+
+	/**
+	 * Gets hosts used after the initiation process. These hosts will be child nodes or next node that
+	 * the client that calls this method interact from now on.
+	 * 
+	 * @param key
+	 *            Key in the JSON.
+	 * @return HostEntry array holding the hosts.
+	 * @throws JSONException
+	 */
+	public HostEntry[] getNextHosts(String key) {
+
+		HostEntry[] hostEntries = null;
+
+		try {
+			JSONArray array = (JSONArray) get( key );
+
+			hostEntries = new HostEntry[array.length()];
+			for ( int i = 0; i < array.length(); i++ ) {
+				hostEntries[i] = new HostEntry( (String) array.getJSONObject( i ).get( KEY_HOST ), (Integer) array
+						.getJSONObject( i ).get( KEY_PORT ), (Integer) array.getJSONObject( i ).get( KEY_MAX_TRIAL ) );
+			}
+		}
+		catch ( JSONException ex ) {
+			log.error( ex );
+			return null;
+		}
+
+		return hostEntries;
 	}
 }

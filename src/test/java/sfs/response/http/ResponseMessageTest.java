@@ -6,6 +6,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import sfs.entry.HTTPHeaderEntry;
+import sfs.entry.HostEntry;
 import sfs.header.http.HeaderEntry;
 import sfs.header.http.ResponseHeaderEntry;
 import sfs.header.http.ending.Ending;
@@ -55,5 +56,19 @@ public class ResponseMessageTest {
 			assertTrue( "expecting expected[" + i + "]==res[" + i + "] but found expected[" + i + "]==" + expected[i]
 					+ " res[" + i + "]==" + res[i], expected[i].toString().equals( res[i].toString() ) );
 		}
+	}
+	
+	@Test
+	public void testGetNextHosts(){
+		
+		String input = "HTTP/1.1 200 OK" + Ending.CRLF.toString();
+		input += "Content-Type: application/json" + Ending.CRLF.toString();
+		input += "Content-Length: 45" + Ending.CRLF.toString();
+		input += "Date: Mon, Oct 22, 2012 08:15:05 PM GMT" + Ending.CRLF.toString();
+		input += Ending.CRLF.toString();
+				
+		input += "{\"message\":\"Welcome to SFS!\",\"status\":\"OK\",\"nextHosts\":[{\"port\":2071,\"host\":\"tucana.bsd.uchicago.edu\",\"maxTrial\":30}]}";
+		HostEntry[] res = responseMessage.extractMessage( input ).getNextHosts( "nextHosts" );
+		assertNotNull("expecting res != null but found res==null", res );
 	}
 }
