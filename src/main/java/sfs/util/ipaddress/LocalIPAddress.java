@@ -15,6 +15,8 @@ import sfs.header.http.separator.Period;
 public class LocalIPAddress {
 	
 	private static final String VMNET_PREFIX = "vmnet";
+	private static final String V4 = "v4";
+	private static final String V6 = "v6";
 	private static Logger log = Logger.getLogger( LocalIPAddress.class );
 
 	/**
@@ -82,12 +84,12 @@ public class LocalIPAddress {
 		Map<String, String> localMap = new HashMap<String, String>();
 
 		if ( isIPv4( localAddresses[0] ) ) {
-			localMap.put( "v4", localAddresses[0] );
-			localMap.put( "v6", localAddresses[1] );
+			localMap.put( V4, localAddresses[0] );
+			localMap.put( V6, localAddresses[1] );
 		}
 		else {
-			localMap.put( "v4", localAddresses[1] );
-			localMap.put( "v6", localAddresses[0] );
+			localMap.put( V4, localAddresses[1] );
+			localMap.put( V6, localAddresses[0] );
 		}
 
 		log.debug( "localMap: " + localMap );
