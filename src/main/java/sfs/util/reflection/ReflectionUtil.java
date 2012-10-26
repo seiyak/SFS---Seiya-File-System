@@ -90,6 +90,27 @@ public class ReflectionUtil {
 
 		return Collections.unmodifiableMap( map );
 	}
+	
+	/**
+	 * Gets methods as Map.
+	 * 
+	 * @param methodPrefix
+	 *            Method prefix that is expected for the methods to have.
+	 * @param cls
+	 *            Method retrieval is taken place.
+	 * @return Map holding the methods on the class.
+	 */
+	public static <T> Map<String, Method> getMethodsAsMap(MethodPrefix methodPrefix, Class<T> cls) {
+
+		Map<String, Method> map = new HashMap<String, Method>();
+		for ( Method method : cls.getDeclaredMethods() ) {
+			if ( method.getName().startsWith( methodPrefix.toString() ) ) {
+				map.put( method.getName(), method );
+			}
+		}
+
+		return Collections.unmodifiableMap( map );
+	}
 
 	/**
 	 * Invokes the specified method on object with argument.

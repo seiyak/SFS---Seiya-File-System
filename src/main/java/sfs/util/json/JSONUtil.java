@@ -11,6 +11,7 @@ import org.json.JSONObject;
 import sfs.entry.Entry;
 import sfs.entry.HostEntry;
 import sfs.response.http.ResponseMessage;
+import sfs.util.reflection.MethodPrefix;
 import sfs.util.reflection.ReflectionUtil;
 
 public class JSONUtil {
@@ -85,7 +86,7 @@ public class JSONUtil {
 		try {
 			json = new JSONObject( jsonStr );
 			t = ReflectionUtil.getInstance( cls );
-			Map<String, Method> map = ReflectionUtil.getMethodsAsMap( cls );
+			Map<String, Method> map = ReflectionUtil.getMethodsAsMap( MethodPrefix.SET, cls );
 
 			if ( t != null ) {
 				String key = "";
