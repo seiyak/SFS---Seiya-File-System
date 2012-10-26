@@ -5,10 +5,12 @@ import java.net.InetSocketAddress;
 import java.util.concurrent.Executors;
 
 import sfs.client.http.manager.NodeManager;
+import sfs.entry.HostEntry;
 import sfs.server.http.handler.GreetingHandler;
 import sfs.server.http.handler.InspectNodeHandler;
 import sfs.server.http.handler.ListActiveNodesHandler;
 import sfs.server.http.handler.WelcomeHandler;
+import sfs.structure.Node;
 import sfs.util.http.JSoupViewCreator;
 import sfs.util.http.ViewCreator;
 
@@ -16,47 +18,35 @@ public class InteractiveServer implements HttpServerable {
 
 	// TODO Create a class hierarchy to enable Jetty and other web server apis usable with this class without any
 	// modification.
-	private final String host;
-	private final int port;
 	private final int backLog;
+	private final HostEntry hostEntry;
 	private com.sun.net.httpserver.HttpServer server;
 	private final ViewCreator viewCreator;
-	private final NodeManager nodeManager;
+	private final NodeManager<Node> nodeManager;
 	private static final int DEFAULT_STOP_DELAY = 0;
 
-	public InteractiveServer(String host, int port) {
+	public InteractiveServer(HostEntry hostEntry) {
 
-		this.host = host;
-		this.port = port;
+		this.hostEntry = hostEntry;
 		this.backLog = 0;
 		viewCreator = new JSoupViewCreator();
-		nodeManager = new NodeManager();
+		nodeManager = new NodeManager<Node>( this.hostEntry );
 	}
 
-	public InteractiveServer(String host, int port, int backLog) {
+	public InteractiveServer(HostEntry hostEntry, int backLog) {
 
-		this.host = host;
-		this.port = port;
+		this.hostEntry = hostEntry;
 		this.backLog = backLog;
 		viewCreator = new JSoupViewCreator();
-		nodeManager = new NodeManager();
+		nodeManager = new NodeManager<Node>( this.hostEntry );
 	}
 
-	public InteractiveServer(String host, int port, int backLog, ViewCreator viewCreator) {
+	public InteractiveServer(HostEntry hostEntry, int backLog, ViewCreator viewCreator) {
 
-		this.host = host;
-		this.port = port;
+		this.hostEntry = hostEntry;
 		this.backLog = backLog;
 		this.viewCreator = viewCreator;
-		nodeManager = new NodeManager();
-	}
-
-	public String getHost() {
-		return host;
-	}
-
-	public int getPort() {
-		return port;
+		nodeManager = new NodeManager<Node>( this.hostEntry );
 	}
 
 	public int getBackLog() {
@@ -92,7 +82,8 @@ public class InteractiveServer implements HttpServerable {
 	private void configure() throws IOException {
 
 		try {
-			server = com.sun.net.httpserver.HttpServer.create( new InetSocketAddress( host, port ), backLog );
+			server = com.sun.net.httpserver.HttpServer.create(
+					new InetSocketAddress( hostEntry.getHost(), hostEntry.getPort() ), backLog );
 			setContextPaths();
 			server.setExecutor( Executors.newCachedThreadPool() );
 		}
