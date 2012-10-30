@@ -168,4 +168,16 @@ public class ReflectionUtil {
 
 		return obj;
 	}
+
+	/**
+	 * Gets Class type from the specified array.
+	 * 
+	 * @param array
+	 *            Array where the class type is taken.
+	 * @return Class type of the array,
+	 */
+	public static <T> Class<T> getTypeFromArray(T[] array) {
+
+		return (Class<T>) array.getClass().getComponentType();
+	}
 }
