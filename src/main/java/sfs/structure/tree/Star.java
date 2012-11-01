@@ -90,4 +90,8 @@ public class Star<T extends MultiNode> extends AbstractTree<T> {
 
 		return getRoot().getChildNodes()[index];
 	}
+
+	public T[] toArray() {
+		return (T[]) getRoot().getChildren();
+	}
 }

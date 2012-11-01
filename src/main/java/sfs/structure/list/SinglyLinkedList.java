@@ -98,4 +98,17 @@ public class SinglyLinkedList<T extends SinglyNode> extends AbstractList<T> {
 
 		return null;
 	}
+
+	public T[] toArray() {
+		
+		Object[] nodes = new Object[count];
+		T node = head;
+		int index = 0;
+		while(node != null){
+			nodes[index++] = node;
+			node = (T) node.getNext();
+		}
+		
+		return (T[]) nodes;
+	}
 }

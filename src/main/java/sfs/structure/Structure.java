@@ -9,4 +9,6 @@ public interface Structure<T> {
 	public boolean find(T t);
 
 	public int getSize();
+	
+	public T[] toArray();
 }
