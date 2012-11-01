@@ -6,8 +6,12 @@ import java.util.Map;
 
 public class Entry {
 
-	private final String key;
-	private final String value;
+	private String key;
+	private String value;
+
+	public Entry() {
+
+	}
 
 	public Entry(String key, String value) {
 
@@ -15,8 +19,16 @@ public class Entry {
 		this.value = value;
 	}
 
+	public void setKey(String key){
+		this.key = key;
+	}
+	
 	public String getKey() {
 		return key;
+	}
+
+	public void setValue(String value) {
+		this.value = value;
 	}
 
 	public String getValue() {
