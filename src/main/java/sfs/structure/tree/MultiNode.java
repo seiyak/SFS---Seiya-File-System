@@ -135,6 +135,8 @@ public class MultiNode extends StructureNode {
 			}
 		}
 		else {
+
+			shiftWithinDefaultMaxNumber();
 			SortUtil.mergeSort( children );
 			int index = -1;
 			try {
@@ -153,6 +155,80 @@ public class MultiNode extends StructureNode {
 		return done;
 	}
 
+	/**
+	 * Shifts elements up to DEFAULT_MAX_NUMBER_OF_CHILDREN, 5 if there are any null elements.
+	 * This method tries to remove a hole within the first DEFAULT_MAX_NUMBER_OF_CHILDREN, 5.
+	 */
+	private void shiftWithinDefaultMaxNumber() {
+
+		int firstNullIndex = getFirstNullIndex();
+		MultiNode[] nodes = null;
+		if ( firstNullIndex == 1 ) {
+			nodes = createArray( 1 );
+			System.arraycopy( children, 0, nodes, 0, 1 );
+		}
+		else if ( firstNullIndex == 2 ) {
+			nodes = createArray( 2 );
+			System.arraycopy( children, 0, nodes, 0, 2 );
+		}
+		else if ( firstNullIndex == 3 ) {
+			nodes = createArray( 3 );
+			System.arraycopy( children, 0, nodes, 0, 3 );
+		}
+		else if ( firstNullIndex == 4 ) {
+			nodes = createArray( 4 );
+			System.arraycopy( children, 0, nodes, 0, 4 );
+		}
+
+		if ( firstNullIndex != -1 ) {
+			children = null;
+			children = nodes;
+		}
+	}
+
+	/**
+	 * Checks if there is any null element up to the DEFAULT_MAX_NUMBER_OF_CHILDREN, 5. If so,
+	 * gets the first null element index.
+	 * @return First null index number within DEFAULT_MAX_NUMBER_OF_CHILDREN, 5.
+	 */
+	private int getFirstNullIndex() {
+
+		if ( isNullAt( 0 ) ) {
+			return 0;
+		}
+		else if ( isNullAt( 1 ) ) {
+			return 1;
+		}
+		else if ( isNullAt( 2 ) ) {
+			return 2;
+		}
+		else if ( isNullAt( 3 ) ) {
+			return 3;
+		}
+		else if ( isNullAt( 4 ) ) {
+			return 4;
+		}
+
+		return -1;
+	}
+
+	/**
+	 * Checks if children at the specified index is null or not.
+	 * 
+	 * @param index
+	 *            Used to specify a child.
+	 * @return True if the element is null ,false otherwise.
+	 */
+	private boolean isNullAt(int index) {
+
+		if ( ( index < 0 ) || ( index >= children.length ) ) {
+			throw new IllegalArgumentException( "invalid index, " + index + " specified for children, length == "
+					+ children.length );
+		}
+
+		return children[index] == null ? true : false;
+	}
+	
 	/**
 	 * Shifts the specified array.
 	 * 
