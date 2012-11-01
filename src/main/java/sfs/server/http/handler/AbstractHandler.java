@@ -54,13 +54,13 @@ public abstract class AbstractHandler implements HttpHandler {
 		}
 	}
 
-	protected final void writeResponse(HttpExchange exchange, byte[] output) throws IOException {
+	protected final void writeResponse(HttpExchange exchange,int statusCode, byte[] output) throws IOException {
 
 		OutputStream out = null;
 
 		try {
 			exchange.getResponseHeaders().set( HeaderEntry.DATE.toString(), DateUtil.getTimeInGMT() );
-			exchange.sendResponseHeaders( StatusCode._200.getNumber(), output.length );
+			exchange.sendResponseHeaders( statusCode, output.length );
 
 			out = exchange.getResponseBody();
 			out.write( output );
