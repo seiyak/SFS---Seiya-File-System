@@ -101,7 +101,15 @@ public class ResponseMessage extends Response {
 		String[] each = statusLine.split( " " );
 		responseHTTPVersion = each[0];
 		statusCode = each[1];
-		reasonPhrase = each[2];
+		reasonPhrase = "";
+		for(int i = 2;i < each.length;i++){
+			
+			if(i < (each.length - 1)){
+				reasonPhrase += each[i] + " ";
+			}else{
+				reasonPhrase += each[i];
+			}
+		}
 	}
 
 	/**
