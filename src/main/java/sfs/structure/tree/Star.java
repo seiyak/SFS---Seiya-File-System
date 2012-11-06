@@ -11,6 +11,10 @@ public class Star<T extends MultiNode> extends AbstractTree<T> {
 
 	private static Logger log = Logger.getLogger( Star.class );
 
+	public Star() {
+
+	}
+	
 	public Star(T root) {
 		super( root );
 	}
@@ -18,24 +22,35 @@ public class Star<T extends MultiNode> extends AbstractTree<T> {
 	/**
 	 * Adds as a child.
 	 */
-	public boolean add(T t) {
-
+	public T add(T t) {
+		
 		try {
-			getRoot().addChild( t );
+			if ( getRoot() == null ) {
+				setRoot( t );
+				return null;
+			}
+			else {
+				getRoot().addChild( t );
+				
+			}
 		}
 		catch ( Exception ex ) {
 
-			return false;
+			return null;
 		}
 
-		return true;
+		return getRoot();
 	}
 
 	/**
 	 * Deletes from child nodes.
 	 */
-	public boolean delete(T t) {
-		return getRoot().deleteChild( t );
+	public T delete(T t) {
+		if ( getRoot().deleteChild( t ) ) {
+			return getRoot();
+		}
+
+		return null;
 	}
 
 	/**

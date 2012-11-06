@@ -12,10 +12,11 @@ public class SinglyLinkedList<T extends SinglyNode> extends AbstractList<T> {
 		this.head = head;
 	}
 
-	public boolean add(T t) {
+	public T add(T t) {
 
+		T node = null;
 		try {
-			T node = head;
+			node = head;
 			while ( node.getNext() != null ) {
 
 				node = (T) node.getNext();
@@ -26,12 +27,12 @@ public class SinglyLinkedList<T extends SinglyNode> extends AbstractList<T> {
 		}
 		catch ( Exception ex ) {
 			log.error( ex );
-			return false;
+			return null;
 		}
-		return true;
+		return node;
 	}
 
-	public boolean delete(T t) {
+	public T delete(T t) {
 
 		T node = head;
 		while ( node != null ) {
@@ -44,7 +45,7 @@ public class SinglyLinkedList<T extends SinglyNode> extends AbstractList<T> {
 		}
 
 		if ( node == null ) {
-			return false;
+			return null;
 		}
 
 		SinglyNode sn = node.getNext().getNext();
@@ -52,7 +53,7 @@ public class SinglyLinkedList<T extends SinglyNode> extends AbstractList<T> {
 		node.setNext( sn );
 
 		count--;
-		return true;
+		return node;
 	}
 
 	public boolean find(T t) {
