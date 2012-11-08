@@ -93,13 +93,13 @@ public class RequestMessage extends Request {
 	 * Copied from sfs.response.http.ResponseMessage.extractMessage().Extracts status line, header and content from the
 	 * specified string.
 	 * 
-	 * @param response
-	 *            HTTP response where status line, header and content are extracted.
+	 * @param request
+	 *            HTTP request where status line, header and content are extracted.
 	 * @return This object.
 	 */
-	public RequestMessage extractMessage(String response) {
+	public RequestMessage extractMessage(String request) {
 
-		String[] res = response.split( Ending.CRLF.toString() );
+		String[] res = request.split( Ending.CRLF.toString() );
 		if ( ( res == null ) || ( res.length == 1 ) ) {
 			content = "";
 		}
