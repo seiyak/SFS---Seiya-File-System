@@ -1,6 +1,8 @@
 package sfs.util.reflection;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -179,5 +181,66 @@ public class ReflectionUtil {
 	public static <T> Class<T> getTypeFromArray(T[] array) {
 
 		return (Class<T>) array.getClass().getComponentType();
+	}
+
+	/**
+	 * Gets static members in the specified class.
+	 * 
+	 * @param cls
+	 *            Used to search for static members.
+	 * @return Map holding static members.
+	 */
+	public static <T> Map<String, String> getStaticMembers(Class<T> cls) {
+
+		return doGetStaticMembers( new HashMap<String, String>(), cls );
+	}
+
+	/**
+	 * Gets static members in the specified class.
+	 * 
+	 * @param statics
+	 *            Map holding found static members.
+	 * @param cls
+	 *            Used to search for static members.
+	 * @return Map holding static members.
+	 */
+	private static <T> Map<String, String> doGetStaticMembers(Map<String, String> statics, Class<T> cls) {
+
+		if ( cls != null ) {
+			for ( Field field : cls.getDeclaredFields() ) {
+
+				if ( isPublicStaticFinal( field.getModifiers() ) ) {
+					try {
+						statics.put( field.get( null ).toString(), field.get( null ).toString() );
+					}
+					catch ( IllegalArgumentException ex ) {
+						log.error( ex );
+						return statics;
+					}
+					catch ( IllegalAccessException ex ) {
+						log.error( ex );
+						return statics;
+					}
+				}
+			}
+
+			statics = doGetStaticMembers( statics, cls.getSuperclass() );
+		}
+
+		return statics;
+	}
+
+	/**
+	 * Checks if the specified modifier is public static final modifier or not.
+	 * 
+	 * @param modifier
+	 *            To be checked if it's public static final modifier or not.
+	 * @return True if the modifier is public static final modifier or not, false otherwise.
+	 */
+	public static boolean isPublicStaticFinal(int modifier) {
+
+		return ( ( Modifier.PUBLIC & modifier ) == Modifier.PUBLIC )
+				&& ( ( Modifier.STATIC & modifier ) == Modifier.STATIC )
+				&& ( ( Modifier.FINAL & modifier ) == Modifier.FINAL );
 	}
 }
