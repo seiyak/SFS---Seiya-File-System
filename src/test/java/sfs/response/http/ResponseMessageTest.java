@@ -11,6 +11,7 @@ import sfs.header.http.HeaderEntry;
 import sfs.header.http.ResponseHeaderEntry;
 import sfs.header.http.ending.Ending;
 import sfs.mime.Mime;
+import sfs.response.statuscode.StatusCode;
 
 public class ResponseMessageTest {
 
@@ -70,5 +71,22 @@ public class ResponseMessageTest {
 		input += "{\"message\":\"Welcome to SFS!\",\"status\":\"OK\",\"nextHosts\":[{\"port\":2071,\"host\":\"tucana.bsd.uchicago.edu\",\"maxTrial\":30}]}";
 		HostEntry[] res = responseMessage.extractMessage( input ).getNextHosts( "nextHosts" );
 		assertNotNull("expecting res != null but found res==null", res );
+	}
+
+	@Test
+	public void testCreateMessage() {
+
+		String message = "{\"message\":\"hello\"}";
+		String res1 = responseMessage.createMessage( StatusCode._200, new HTTPHeaderEntry[] {
+				new HTTPHeaderEntry( ResponseHeaderEntry.CONTENT_LENGTH, message.length() ),
+				new HTTPHeaderEntry( HeaderEntry.CONTENT_TYPE, Mime.JSON ),
+				new HTTPHeaderEntry( ResponseHeaderEntry.LIVENESS_BACK, true ) }, message );
+
+		String expected = "HTTP/1.1 200 OK" + Ending.CRLF + ResponseHeaderEntry.CONTENT_LENGTH + ": "
+				+ message.length() + Ending.CRLF + HeaderEntry.CONTENT_TYPE + ": " + Mime.JSON + Ending.CRLF
+				+ ResponseHeaderEntry.LIVENESS_BACK + ": " + true + Ending.CRLF + Ending.CRLF + message;
+
+		assertTrue( "expecting res1.equals(expected but found res1==" + res1 + " expected==" + expected,
+				res1.equals( expected ) );
 	}
 }

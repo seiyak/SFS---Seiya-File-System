@@ -10,6 +10,7 @@ import org.json.JSONObject;
 
 import sfs.entry.HTTPHeaderEntry;
 import sfs.entry.HostEntry;
+import sfs.header.http.HTTPHeader;
 import sfs.header.http.HeaderEntry;
 import sfs.header.http.ResponseHeaderEntry;
 import sfs.header.http.ending.Ending;
@@ -196,5 +197,30 @@ public class ResponseMessage extends Response {
 		}
 
 		return hostEntries;
+	}
+
+	/**
+	 * Creates response message with the specified status code, header entries and message.
+	 * 
+	 * @param statusCode
+	 *            Used to define the status code for the response.
+	 * @param entries
+	 *            Entries on the response header.
+	 * @param message
+	 *            Message body.
+	 * @return Response message as String.
+	 */
+	public String createMessage(StatusCode statusCode, HTTPHeaderEntry[] entries, String message) {
+
+		String str = doResponse( statusCode );
+		HTTPHeader header = new HTTPHeader();
+		for ( HTTPHeaderEntry entry : entries ) {
+			header.put( entry.getKey(), entry.getValue() );
+		}
+
+		str += header.format();
+		str += message;
+
+		return str;
 	}
 }
