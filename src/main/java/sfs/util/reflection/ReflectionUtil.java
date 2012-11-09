@@ -192,7 +192,27 @@ public class ReflectionUtil {
 	 */
 	public static <T> Map<String, String> getStaticMembers(Class<T> cls) {
 
-		return doGetStaticMembers( new HashMap<String, String>(), cls );
+		return doGetStaticMembersAsString( new HashMap<String, String>(), cls );
+	}
+
+	/**
+	 * Gets static members in the specified class.
+	 * 
+	 * @param cls
+	 *            Used to search for static members.
+	 * @param asString
+	 *            True if the returned Map wants to have Map<String,String>, keys and values are the fields' values.
+	 *            False if the returned Map wants to have Map<String, Object>, keys are the field's values and values
+	 *            are the corresponding objects.
+	 * @return Map holding static members.
+	 */
+	public static <T> Map getStaticMembers(Class<T> cls, boolean asString) {
+
+		if ( asString ) {
+			return doGetStaticMembersAsString( new HashMap<String, String>(), cls );
+		}
+
+		return doGetStaticMembersAsObject( new HashMap<String, Object>(), cls );
 	}
 
 	/**
@@ -204,7 +224,7 @@ public class ReflectionUtil {
 	 *            Used to search for static members.
 	 * @return Map holding static members.
 	 */
-	private static <T> Map<String, String> doGetStaticMembers(Map<String, String> statics, Class<T> cls) {
+	private static <T> Map<String, String> doGetStaticMembersAsString(Map<String, String> statics, Class<T> cls) {
 
 		if ( cls != null ) {
 			for ( Field field : cls.getDeclaredFields() ) {
@@ -224,7 +244,42 @@ public class ReflectionUtil {
 				}
 			}
 
-			statics = doGetStaticMembers( statics, cls.getSuperclass() );
+			statics = doGetStaticMembersAsString( statics, cls.getSuperclass() );
+		}
+
+		return statics;
+	}
+
+	/**
+	 * Gets static members in the specified class.
+	 * 
+	 * @param statics
+	 *            Map holding found static members.
+	 * @param cls
+	 *            Used to search for static members.
+	 * @return Map holding static members.
+	 */
+	private static <T> Map<String, Object> doGetStaticMembersAsObject(Map<String, Object> statics, Class<T> cls) {
+
+		if ( cls != null ) {
+			for ( Field field : cls.getDeclaredFields() ) {
+
+				if ( isPublicStaticFinal( field.getModifiers() ) ) {
+					try {
+						statics.put( field.get( null ).toString(), field.get( null ) );
+					}
+					catch ( IllegalArgumentException ex ) {
+						log.error( ex );
+						return statics;
+					}
+					catch ( IllegalAccessException ex ) {
+						log.error( ex );
+						return statics;
+					}
+				}
+			}
+
+			statics = doGetStaticMembersAsObject( statics, cls.getSuperclass() );
 		}
 
 		return statics;
