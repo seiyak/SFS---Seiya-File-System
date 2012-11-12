@@ -2,8 +2,6 @@ package sfs.request;
 
 import org.apache.log4j.Logger;
 
-import sfs.entry.Entry;
-import sfs.entry.HTTPHeaderEntry;
 import sfs.verb.http.Verb;
 
 public abstract class Request {
