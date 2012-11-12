@@ -48,20 +48,27 @@ public class JSONUtil {
 		}
 
 		JSONObject jsn = null;
-		for ( int i = 0; i < hostEntries.length; i++ ) {
-			try {
-				jsn = new JSONObject();
-				jsn.put( ResponseMessage.KEY_HOST, hostEntries[i].getHost() );
-				jsn.put( ResponseMessage.KEY_PORT, hostEntries[i].getPort() );
-				jsn.put( ResponseMessage.KEY_MAX_TRIAL, hostEntries[i].getMaxTrial() );
-			}
-			catch ( JSONException ex ) {
-				log.error( ex );
+		if ( hostEntries != null && hostEntries.length > 0 ) {
+			for ( int i = 0; i < hostEntries.length; i++ ) {
+				try {
+					jsn = new JSONObject();
+					jsn.put( ResponseMessage.KEY_HOST, hostEntries[i].getHost() );
+					jsn.put( ResponseMessage.KEY_PORT, hostEntries[i].getPort() );
+					jsn.put( ResponseMessage.KEY_MAX_TRIAL, hostEntries[i].getMaxTrial() );
+				}
+				catch ( JSONException ex ) {
+					log.error( ex );
+				}
 			}
 		}
 
 		try {
-			json.append( ResponseMessage.KEY_NEXT_HOSTS, jsn );
+			if ( jsn == null ) {
+				json.append( ResponseMessage.KEY_NEXT_HOSTS, JSONObject.NULL );
+			}
+			else {
+				json.append( ResponseMessage.KEY_NEXT_HOSTS, jsn );
+			}
 		}
 		catch ( JSONException ex ) {
 			log.error( ex );
