@@ -49,4 +49,22 @@ public class Node {
 	public void setInternal(int internal) {
 		this.internal = internal;
 	}
+
+	@Override
+	public boolean equals(Object obj) {
+
+		if ( obj instanceof Node ) {
+			Node node = (Node) obj;
+
+			return timestamp.equals( node.getTimestamp() ) && origin.equals( node.getOrigin() )
+					&& port == node.getPort() && internal == node.getInternal();
+		}
+
+		return false;
+	}
+
+	@Override
+	public String toString() {
+		return "{timestamp=" + timestamp + " origin=" + origin + " port=" + port + " internal=" + internal + "}";
+	}
 }
