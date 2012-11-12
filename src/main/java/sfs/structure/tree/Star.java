@@ -30,12 +30,13 @@ public class Star<T extends MultiNode> extends AbstractTree<T> {
 				return null;
 			}
 			else {
+				// guarantees addChild() is called for adding children but not root.
 				getRoot().addChild( t );
 				
 			}
 		}
 		catch ( Exception ex ) {
-
+			log.error( ex );
 			return null;
 		}
 
