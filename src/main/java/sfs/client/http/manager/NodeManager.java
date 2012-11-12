@@ -35,20 +35,19 @@ public class NodeManager<T extends StructureNode> {
 		return hostEntry;
 	}
 	
-	public StatusEntry[] setStructure(Structure<T> structure) {
-
-		StatusEntry[] entry = null;
+	public boolean setStructure(Structure<T> structure) {
+		//TODO not fully implemented yet.
+		boolean done = false;
 
 		if ( this.structure == null ) {
 			this.structure = structure;
-			entry = new StatusEntry[] { new StatusEntry( new HostEntry[] { hostEntry }, createStatusEntry( "status",
-					"OK", "message", "welcome to SFS as the root !" ) ) };
+			done = true;
 		}
 		else {
-			changeTo( structure );
+			done = changeTo( structure );
 		}
 
-		return entry;
+		return done;
 	}
 
 	public boolean isStructureNull() {
@@ -60,24 +59,29 @@ public class NodeManager<T extends StructureNode> {
 		throw new UnsupportedOperationException( "not implemented yet" );
 	}
 
-	public StatusEntry[] add(T t) {
+	public StatusEntry add(T t) {
 
 		T node = null;
 		if ( nodeMap.get( t.getNode().getOrigin() ) == null ) {
 			if ( ( node = structure.add( t ) ) != null ) {
 				nodeMap.put( t.getNode().getOrigin(), t );
 
-				return new StatusEntry[] { new StatusEntry( createHostEntry( node ), createStatusEntry( "status", "OK",
-						"message", "successfully added" ) ) };
+				return new StatusEntry( createHostEntry( node ), createStatusEntry( "status", "OK", "message",
+						"successfully added" ) );
+			}
+			else {
+				// t is added as the root.
+				return new StatusEntry( null, createStatusEntry( "status", "OK", "message",
+						"successfully added as the root" ) );
 			}
 		}
 
-		return new StatusEntry[] { new StatusEntry( null, createStatusEntry( "status", "FAILED", "message",
+		return new StatusEntry( null, createStatusEntry( "status", "FAILED", "message",
 				"try to add to non-existing parent, parent is null, " + t.getNode().getOrigin()
-						+ ", based on the origin" ) ) };
+						+ ", based on the origin" ) );
 	}
 
-	public StatusEntry[] delete(T t) {
+	public StatusEntry delete(T t) {
 
 		T node = null;
 		if ( nodeMap.get( t.getNode().getOrigin() ) != null ) {
@@ -85,13 +89,13 @@ public class NodeManager<T extends StructureNode> {
 			if ( ( node = structure.delete( t ) ) != null ) {
 				nodeMap.remove( t.getNode().getOrigin() );
 
-				return new StatusEntry[] { new StatusEntry( createHostEntry( node ), createStatusEntry( "status", "OK",
-						"message", "successfully deleted" ) ) };
+				return new StatusEntry( createHostEntry( node ), createStatusEntry( "status", "OK", "message",
+						"successfully deleted" ) );
 			}
 		}
 
-		return new StatusEntry[] { new StatusEntry( null, createStatusEntry( "status", "FAILED", "message",
-				"try to delete non-exisitng node, " + t.getNode().getOrigin() + ", based on the origin" ) ) };
+		return new StatusEntry( null, createStatusEntry( "status", "FAILED", "message",
+				"try to delete non-exisitng node, " + t.getNode().getOrigin() + ", based on the origin" ) );
 	}
 
 	private Entry[] createStatusEntry(String ... status){
@@ -140,6 +144,6 @@ public class NodeManager<T extends StructureNode> {
 
 	private HostEntry[] createHostEntry(T t) {
 
-		return new HostEntry[] { new HostEntry( t.getNode().getOrigin(), t.getNode().getPort() ) };
+		return new HostEntry[] { new HostEntry( t.getNode().getOrigin(), t.getNode().getInternal() ) };
 	}
 }

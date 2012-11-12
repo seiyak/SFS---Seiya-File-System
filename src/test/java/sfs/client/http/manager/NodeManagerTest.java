@@ -39,31 +39,27 @@ public class NodeManagerTest {
 	@Test
 	public void testAdd() {
 
-		StatusEntry[] entries = nodeManager.add( node2 );
-		assertNotNull( "expecting entries != null but found null", entries );
-		assertTrue( "expecting entries[0].getStatus().length == 2 but found " + entries[0].getStatus().length, entries[0].getStatus().length == 2 );
-		assertTrue( "expecting entries[0].getKey() == 'status' but found " + entries[0].getStatus()[0].getKey(),
-				"status".equals( entries[0].getStatus()[0].getKey() ) );
-		assertTrue( "expecting entries[0].getValue() == 'OK' but found " + entries[0].getStatus()[0].getValue(),
-				"OK".equals( entries[0].getStatus()[0].getValue() ) );
+		StatusEntry entry = nodeManager.add( node2 );
+		assertNotNull( "expecting entry != null but found null", entry);
+		assertTrue( "expecting entry.getStatus().length == 2 but found " + entry.getStatus().length, entry.getStatus().length == 2 );
+		assertTrue( "expecting entry.getKey() == 'status' but found " + entry.getStatus()[0].getKey(),
+				"status".equals( entry.getStatus()[0].getKey() ) );
+		assertTrue( "expecting entries[0].getValue() == 'OK' but found " + entry.getStatus()[0].getValue(),
+				"OK".equals( entry.getStatus()[0].getValue() ) );
 
-		entries = null;
-
-		entries = nodeManager.add( node3 );
+		entry = nodeManager.add( node3 );
 		assertTrue( "expecting size == 2 but found " + nodeManager.size(), nodeManager.size() == 2 );
 
-		entries = null;
-		entries = nodeManager.delete( node2 );
-		assertTrue( "expecting entries[0].getKey() == 'status' but found " + entries[0].getStatus()[0].getKey(),
-				"status".equals( entries[0].getStatus()[0].getKey() ) );
-		assertTrue( "expecting entries[0].getValue() == 'OK' but found " + entries[0].getStatus()[0].getValue(),
-				"OK".equals( entries[0].getStatus()[0].getValue() ) );
-		
-		entries = null;
-		entries = nodeManager.delete( node2 );
-		assertTrue( "expecting entries[0].getKey() == 'status' but found " + entries[0].getStatus()[0].getKey(),
-				"status".equals( entries[0].getStatus()[0].getKey() ) );
-		assertTrue( "expecting entries[0].getValue() == 'FALIED' but found " + entries[0].getStatus()[0].getValue(),
-				"FAILED".equals( entries[0].getStatus()[0].getValue() ) );
+		entry = nodeManager.delete( node2 );
+		assertTrue( "expecting entry.getKey() == 'status' but found " + entry.getStatus()[0].getKey(),
+				"status".equals( entry.getStatus()[0].getKey() ) );
+		assertTrue( "expecting entry.getValue() == 'OK' but found " + entry.getStatus()[0].getValue(),
+				"OK".equals( entry.getStatus()[0].getValue() ) );
+
+		entry = nodeManager.delete( node2 );
+		assertTrue( "expecting entry.getKey() == 'status' but found " + entry.getStatus()[0].getKey(),
+				"status".equals( entry.getStatus()[0].getKey() ) );
+		assertTrue( "expecting entry.getValue() == 'FALIED' but found " + entry.getStatus()[0].getValue(),
+				"FAILED".equals( entry.getStatus()[0].getValue() ) );
 	}
 }
