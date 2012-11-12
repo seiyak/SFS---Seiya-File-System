@@ -2,6 +2,7 @@ package sfs.request.http;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import sfs.entry.HTTPHeaderEntry;
 import sfs.header.http.HTTPHeader;
@@ -12,10 +13,12 @@ import sfs.header.http.ending.Ending;
 import sfs.header.http.separator.WhiteSpace;
 import sfs.request.Request;
 import sfs.response.http.ResponseMessage;
+import sfs.util.reflection.ReflectionUtil;
 import sfs.verb.http.Verb;
 
 public class RequestMessage extends Request {
 
+	private final Map requestMessageMap;
 	private String verb;
 	private String contextPath;
 	private String requestHTTPVersion;
@@ -24,9 +27,14 @@ public class RequestMessage extends Request {
 	private static final String HTTP_VERSION = "HTTP/1.1";
 
 	public RequestMessage(){
+		requestMessageMap = ReflectionUtil.getStaticMembers( RequestHeaderEntry.class, false );
 		header = new LinkedList<HTTPHeaderEntry>();
 	}
-	
+
+	protected Map getRequestMessageMap() {
+		return requestMessageMap;
+	}
+
 	public String getVerb() {
 		return verb;
 	}
@@ -159,23 +167,12 @@ public class RequestMessage extends Request {
 
 		HTTPHeaderEntry headerEntry = null;
 		String[] each = headerStr.split( ": " );
+
 		if ( each[0].equals( RequestHeaderEntry.ACCEPT.toString() ) ) {
 			headerEntry = new HTTPHeaderEntry( HeaderEntry.CONTENT_TYPE, each[1] );
 		}
-		else if ( each[0].equals( HeaderEntry.DATE.toString() ) ) {
-			headerEntry = new HTTPHeaderEntry( HeaderEntry.DATE, each[1] );
-		}
-		else if ( each[0].equals( RequestHeaderEntry.GREETING.toString() ) ) {
-			headerEntry = new HTTPHeaderEntry( RequestHeaderEntry.GREETING, each[1] );
-		}
-		else if ( each[0].equals( RequestHeaderEntry.HOST.toString() ) ) {
-			headerEntry = new HTTPHeaderEntry( RequestHeaderEntry.HOST, each[1] );
-		}
-		else if ( each[0].equals( RequestHeaderEntry.TYPE.toString() ) ) {
-			headerEntry = new HTTPHeaderEntry( RequestHeaderEntry.TYPE, each[1] );
-		}
-		else if ( each[0].equals( RequestHeaderEntry.LIVENESS.toString() ) ) {
-			headerEntry = new HTTPHeaderEntry( RequestHeaderEntry.LIVENESS, each[1] );
+		else {
+			headerEntry = new HTTPHeaderEntry( (HeaderEntry) getRequestMessageMap().get( each[0] ), each[1] );
 		}
 
 		header.add( headerEntry );

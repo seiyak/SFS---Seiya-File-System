@@ -2,6 +2,7 @@ package sfs.response.http;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.json.JSONArray;
@@ -17,9 +18,11 @@ import sfs.header.http.ending.Ending;
 import sfs.header.http.separator.WhiteSpace;
 import sfs.response.Response;
 import sfs.response.statuscode.StatusCode;
+import sfs.util.reflection.ReflectionUtil;
 
 public class ResponseMessage extends Response {
 
+	private final Map responseMessageMap;
 	private String responseHTTPVersion;
 	private String statusCode;
 	private String reasonPhrase;
@@ -33,9 +36,14 @@ public class ResponseMessage extends Response {
 	public static final String KEY_NEXT_HOSTS = "nextHosts";
 	
 	public ResponseMessage(){
+		responseMessageMap = ReflectionUtil.getStaticMembers( ResponseHeaderEntry.class, false );
 		header = new LinkedList<HTTPHeaderEntry>();
 	}
-	
+
+	protected Map getResponseMessageMap() {
+		return responseMessageMap;
+	}
+
 	@Override
 	protected String doResponse(StatusCode statusCode) {
 
@@ -115,23 +123,17 @@ public class ResponseMessage extends Response {
 
 	/**
 	 * Extracts each header entry from the specified string.
-	 * @param headerStr String holds each header key and value.
+	 * 
+	 * @param headerStr
+	 *            String holds each header key and value.
 	 * @return Header key and value as HTTPHeaderEntry.
 	 */
 	private HTTPHeaderEntry extractHeader(String headerStr) {
 
 		HTTPHeaderEntry headerEntry = null;
 		String[] each = headerStr.split( ": " );
-		if ( each[0].equals( HeaderEntry.CONTENT_TYPE.toString() ) ) {
-			headerEntry = new HTTPHeaderEntry( HeaderEntry.CONTENT_TYPE, each[1] );
-		}
-		else if ( each[0].equals( HeaderEntry.DATE.toString() ) ) {
-			headerEntry = new HTTPHeaderEntry( HeaderEntry.DATE, each[1] );
-		}
-		else if ( each[0].equals( ResponseHeaderEntry.CONTENT_LENGTH.toString() ) ) {
-			headerEntry = new HTTPHeaderEntry( ResponseHeaderEntry.CONTENT_LENGTH, Integer.parseInt( each[1] ) );
-		}
 
+		headerEntry = new HTTPHeaderEntry( (HeaderEntry) getResponseMessageMap().get( each[0] ), each[1] );
 		header.add( headerEntry );
 		return headerEntry;
 	}
