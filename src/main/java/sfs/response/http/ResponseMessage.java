@@ -187,15 +187,21 @@ public class ResponseMessage extends Response {
 		try {
 			JSONArray array = (JSONArray) get( key );
 
-			hostEntries = new HostEntry[array.length()];
-			for ( int i = 0; i < array.length(); i++ ) {
-				hostEntries[i] = new HostEntry( (String) array.getJSONObject( i ).get( KEY_HOST ), (Integer) array
-						.getJSONObject( i ).get( KEY_PORT ), (Integer) array.getJSONObject( i ).get( KEY_MAX_TRIAL ) );
+			if ( array.length() == 1 && array.get( 0 ) == JSONObject.NULL ) {
+				hostEntries = new HostEntry[] { null };
+			}
+			else {
+				hostEntries = new HostEntry[array.length()];
+				for ( int i = 0; i < array.length(); i++ ) {
+					hostEntries[i] = new HostEntry( (String) array.getJSONObject( i ).get( KEY_HOST ), (Integer) array
+							.getJSONObject( i ).get( KEY_PORT ), (Integer) array.getJSONObject( i ).get( KEY_MAX_TRIAL ) );
+				}
 			}
 		}
 		catch ( JSONException ex ) {
 			log.error( ex );
-			return null;
+			hostEntries = null;
+			hostEntries = new HostEntry[] { null };
 		}
 
 		return hostEntries;
