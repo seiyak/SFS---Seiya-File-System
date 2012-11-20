@@ -1,5 +1,6 @@
 package sfs.response.http;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -158,7 +159,7 @@ public class ResponseMessage extends Response {
 	 * @return Corresponding value for the key.
 	 */
 	public Object get(String key) {
-
+		log.debug("key here is: " + key);
 		JSONObject json = null;
 		try {
 			json = new JSONObject( content );
@@ -230,5 +231,24 @@ public class ResponseMessage extends Response {
 		str += message;
 
 		return str;
+	}
+
+	/**
+	 * Gets HTTP header as map.
+	 * 
+	 * @return Map representation of HTTP header.
+	 */
+	public Map<String, Object> getHeaderAsMap() {
+
+		Map<String, Object> map = new HashMap<String, Object>();
+
+		if ( header != null && !header.isEmpty() ) {
+
+			for ( HTTPHeaderEntry entry : header ) {
+				map.put( entry.getKey().toString(), entry.getValue() );
+			}
+		}
+
+		return map;
 	}
 }
