@@ -16,7 +16,7 @@ public abstract class AbstractTree<T> implements TreeStructure<T> {
 		this.root = root;
 	}
 
-	protected T getRoot() {
+	public T getRoot() {
 		return root;
 	}
 }

@@ -11,4 +11,6 @@ public interface Structure<T> {
 	public int getSize();
 	
 	public T[] toArray();
+	
+	public T getRoot();
 }

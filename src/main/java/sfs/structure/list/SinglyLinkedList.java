@@ -112,4 +112,8 @@ public class SinglyLinkedList<T extends SinglyNode> extends AbstractList<T> {
 		
 		return (T[]) nodes;
 	}
+
+	public T getRoot() {
+		return head;
+	}
 }
