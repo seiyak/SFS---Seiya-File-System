@@ -44,6 +44,7 @@ public class GreetingHandler extends AbstractHandler {
 		Node node = generateNode( exchange.getRequestHeaders().getFirst( RequestHeaderEntry.GREETING.toString() ) );
 		StatusEntry status = nodeManager.add( new MultiNode( node ) );
 		String response = createResponseMessage( status.getHostEntries(), status.getStatus() );
+		log.debug("about to send to " + exchange.getRemoteAddress().getAddress() + " response: " + response);
 		writeResponseBack( exchange, status.getStatus()[0].getValue(), response );
 	}
 

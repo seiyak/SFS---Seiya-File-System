@@ -27,7 +27,7 @@ public class SinglyLinkedListTest {
 		assertTrue( "expecting size==NUMBER_OF_LOOP but found " + list.getSize(), list.getSize() == NUMBER_OF_LOOP );
 		SinglyNode node2 = list.get( 3 );
 		SinglyNode node3 = list.get( 4 );
-		assertTrue( "expecting true but found false", list.delete( node2 ) );
+		assertNotNull( "expecting true but found false", list.delete( node2 ) );
 		SinglyNode node = list.get( 2 );
 		assertTrue( "expecting node.getNext().getId()==node3.getId() but found node.getNext().getId()=="
 				+ node.getNext().getId() + " node3.getId()==" + node3.getId(), node.getNext().getId() == node3.getId() );

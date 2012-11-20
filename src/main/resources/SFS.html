@@ -93,8 +93,10 @@ ul li a:hover {
 		});
 
 		function clickActiveNodes(event) {
+			
+			removeCPUInfoTableDiv();
 			$.getJSON("/list/activeNodes", function(json) {
-
+				
 				$.each(json["cpuInfos"], function(key, value) {
 					console.log("key: " + key + " value: " + value
 							+ " value[port]: " + value["port"]);
@@ -104,8 +106,6 @@ ul li a:hover {
 		}
 
 		function createCpuInfoTable(key, json) {
-
-			removeCPUInfoTableDiv();
 
 			var cpuInfoArray = sortCpuInfoJson(json["cpuInfo"]);
 			var res = "<div id='cpuInfoTableDiv" + key + "' class='sfsDiv'><table id='cpuInfoTable" + key + "'>";
@@ -148,11 +148,15 @@ ul li a:hover {
 
 			$("#inspectHref" + key).hover(function(event) {
 				event.preventDefault();
-				inspectInterval = setInterval(function() {
-					requestInspectNode(event, $("#port" + key).text())
-				}, 1000);
+				console.log("inspectInterval: " + inspectInterval);
+				if (inspectInterval == null || inspectInterval == undefined) {
+					inspectInterval = setInterval(function() {
+						requestInspectNode(event, $("#port" + key).text())
+					}, 1000);
+				}
 			}, function(event) {
 				clearInterval(inspectInterval);
+				inspectInterval = null;
 				removeInspectTableDiv();
 			});
 
@@ -217,7 +221,7 @@ ul li a:hover {
 		}
 
 		function removeCPUInfoTableDiv() {
-			$(".sfsClass").remove();
+			$(".sfsDiv").remove();
 		}
 	</script>
 </body>

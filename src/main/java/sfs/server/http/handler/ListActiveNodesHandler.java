@@ -28,7 +28,8 @@ public class ListActiveNodesHandler extends AbstractHandler {
 
 		setResponseHeaders( exchange, new sfs.entry.Entry[] { new sfs.entry.Entry( HeaderEntry.CONTENT_TYPE.toString(),
 				Mime.JSON.toString() ) } );
-		writeResponse( exchange, nodeManager.getAllNodesAsJson().getBytes() );
+		//TODO comment out.
+		//writeResponse( exchange, nodeManager.getAllNodesAsJson().getBytes() );
 
 	}
 

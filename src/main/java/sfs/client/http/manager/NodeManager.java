@@ -1,10 +1,13 @@
 package sfs.client.http.manager;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
 
+import sfs.client.http.SingleplexHTTPClient;
+import sfs.client.http.shortconversation.LivenessConversation;
 import sfs.entry.Entry;
 import sfs.entry.HostEntry;
 import sfs.entry.StatusEntry;
@@ -62,23 +65,46 @@ public class NodeManager<T extends StructureNode> {
 	public StatusEntry add(T t) {
 
 		T node = null;
+		StatusEntry status = null;
+		
+		log.debug("about to add t: " + t + " " + t.getNode());
+		log.debug("exists ? " + nodeMap.get( t.getNode().getOrigin() ));
 		if ( nodeMap.get( t.getNode().getOrigin() ) == null ) {
 			if ( ( node = structure.add( t ) ) != null ) {
+				
+				log.debug( "parent is not null, " + node.getNode() );
 				nodeMap.put( t.getNode().getOrigin(), t );
-
-				return new StatusEntry( createHostEntry( node ), createStatusEntry( "status", "OK", "message",
+				
+				if ( !isParentAlive( node ) ) {
+					log.warn( "need to relocate the node to another parent since the parent looks dead." );
+				}
+				
+				log.debug("added as a child node, " + t + " parent: " + node.getNode());
+				status = new StatusEntry( createHostEntry( node ), createStatusEntry( "status", "OK", "message",
 						"successfully added" ) );
 			}
 			else {
-				// t is added as the root.
-				return new StatusEntry( null, createStatusEntry( "status", "OK", "message",
-						"successfully added as the root" ) );
+				log.debug( "parent is null for " + t.getNode() );
+				if ( nodeMap.isEmpty() ) {
+					nodeMap.put( t.getNode().getOrigin(), t );
+					// t is added as the root.
+					status = new StatusEntry( null, createStatusEntry( "status", "OK", "message",
+							"successfully added as the root" ) );
+				}
+				else {
+
+					status = new StatusEntry( null, createStatusEntry( "status", "FAILED", "message",
+							"try to add to non-existing parent, parent is null, " + t.getNode().getOrigin()
+									+ ", based on the origin" ) );
+				}
 			}
 		}
+		else {
+			status = new StatusEntry( null, createStatusEntry( "status", "FAILED", "message",
+					"try to add the same node multiple times, " + t.getNode().getOrigin() + ", based on the origin" ) );
+		}
 
-		return new StatusEntry( null, createStatusEntry( "status", "FAILED", "message",
-				"try to add to non-existing parent, parent is null, " + t.getNode().getOrigin()
-						+ ", based on the origin" ) );
+		return status;
 	}
 
 	public StatusEntry delete(T t) {
@@ -145,5 +171,38 @@ public class NodeManager<T extends StructureNode> {
 	private HostEntry[] createHostEntry(T t) {
 
 		return new HostEntry[] { new HostEntry( t.getNode().getOrigin(), t.getNode().getInternal() ) };
+	}
+
+	/**
+	 * Checks if the parent node after the specified parameter t has been added to the structure is alive or not.
+	 * 
+	 * @param t
+	 *            Node which has just added to the structure.
+	 * @return True if the parent node is connectable over the wire, false otherwise.
+	 */
+	private boolean isParentAlive(T t) {
+
+		boolean alive = false;
+
+		SingleplexHTTPClient client = new SingleplexHTTPClient( createHostEntry( t )[0], new LivenessConversation() );
+		try {
+			client.initiate();
+			alive = true;
+		}
+		catch ( IOException ex ) {
+			log.error( ex );
+			alive = false;
+		}
+		finally {
+			try {
+				client.close();
+			}
+			catch ( IOException e ) {
+				log.error( e );
+				alive = false;
+			}
+		}
+
+		return alive;
 	}
 }

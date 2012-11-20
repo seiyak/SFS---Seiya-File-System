@@ -11,6 +11,8 @@ import sfs.server.http.handler.InspectNodeHandler;
 import sfs.server.http.handler.ListActiveNodesHandler;
 import sfs.server.http.handler.WelcomeHandler;
 import sfs.structure.Node;
+import sfs.structure.Structure;
+import sfs.structure.StructureNode;
 import sfs.util.http.JSoupViewCreator;
 import sfs.util.http.ViewCreator;
 
@@ -22,7 +24,7 @@ public class InteractiveServer implements HttpServerable {
 	private final HostEntry hostEntry;
 	private com.sun.net.httpserver.HttpServer server;
 	private final ViewCreator viewCreator;
-	private final NodeManager<Node> nodeManager;
+	private final NodeManager<StructureNode> nodeManager;
 	private static final int DEFAULT_STOP_DELAY = 0;
 
 	public InteractiveServer(HostEntry hostEntry) {
@@ -30,7 +32,7 @@ public class InteractiveServer implements HttpServerable {
 		this.hostEntry = hostEntry;
 		this.backLog = 0;
 		viewCreator = new JSoupViewCreator();
-		nodeManager = new NodeManager<Node>( this.hostEntry );
+		nodeManager = new NodeManager<StructureNode>( this.hostEntry );
 	}
 
 	public InteractiveServer(HostEntry hostEntry, int backLog) {
@@ -38,7 +40,7 @@ public class InteractiveServer implements HttpServerable {
 		this.hostEntry = hostEntry;
 		this.backLog = backLog;
 		viewCreator = new JSoupViewCreator();
-		nodeManager = new NodeManager<Node>( this.hostEntry );
+		nodeManager = new NodeManager<StructureNode>( this.hostEntry );
 	}
 
 	public InteractiveServer(HostEntry hostEntry, int backLog, ViewCreator viewCreator) {
@@ -46,7 +48,7 @@ public class InteractiveServer implements HttpServerable {
 		this.hostEntry = hostEntry;
 		this.backLog = backLog;
 		this.viewCreator = viewCreator;
-		nodeManager = new NodeManager<Node>( this.hostEntry );
+		nodeManager = new NodeManager<StructureNode>( this.hostEntry );
 	}
 
 	public int getBackLog() {
