@@ -4,35 +4,51 @@ import java.io.IOException;
 import java.net.ConnectException;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
+import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
-import java.util.ArrayList;
+import java.nio.charset.Charset;
+import java.nio.charset.CharsetDecoder;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.log4j.Logger;
 
+import sfs.concatenable.date.Date;
+import sfs.concatenable.liveness.LivenessTrue;
+import sfs.concatenable.status.StatusOK;
 import sfs.entry.HostEntry;
 import sfs.header.http.separator.Colon;
+import sfs.request.http.RequestMessage;
+import sfs.response.http.ResponseMessage;
+import sfs.response.statuscode.StatusCode;
+import sfs.util.header.http.HeaderUtil;
 import sfs.util.ipaddress.LocalIPAddress;
+import sfs.verb.http.Verb;
 
 public abstract class AbstractClient implements Clientable {
 
 	private Map<String, String> localAddressMap;
 	private Selector selector;
+	private final ReentrantLock selectorLock;
 	private List<SocketChannel> serverChannels;
+	private SelectionKey initialSelectionKey;
 	private HostEntry[] hostEntries;
 	private final int INTERVAL_BETWEEN_CONNECT_TRY = 1000;
-	private final int READ_BUFFER_CAPACITY = 1024;
+	private final int READ_BUFFER_CAPACITY = 4000;
 	private static final Logger log = Logger.getLogger( AbstractClient.class );
 
 	protected AbstractClient(HostEntry hostEntry) {
-		serverChannels = new ArrayList<SocketChannel>();
+		serverChannels = new LinkedList<SocketChannel>();
 		hostEntries = new HostEntry[] { hostEntry };
 		localAddressMap = LocalIPAddress.getLocalIPAddress();
+		selectorLock = new ReentrantLock();
 	}
 
 	/**
@@ -129,6 +145,10 @@ public abstract class AbstractClient implements Clientable {
 		return selector;
 	}
 
+	protected final SelectionKey getInitialSelectionKey() {
+		return initialSelectionKey;
+	}
+
 	/**
 	 * Checks if hostEntries property is null or empty.
 	 * 
@@ -138,7 +158,7 @@ public abstract class AbstractClient implements Clientable {
 
 		return ( ( hostEntries == null ) || ( hostEntries.length == 0 ) ) ? true : false;
 	}
-
+	
 	/**
 	 * Opens a connection between this client and the server.
 	 * 
@@ -152,6 +172,7 @@ public abstract class AbstractClient implements Clientable {
 
 		configure( index, hostEntry, false );
 		log.debug( "done with configuration for channel" );
+
 		if ( !connectUpToMaxTrial( index, hostEntry ) ) {
 			throw new ConnectException( "Could not connect to the server, " + hostEntry.getHost() + " at "
 					+ hostEntry.getPort() + " after " + hostEntry.getMaxTrial() + " tries." );
@@ -183,7 +204,13 @@ public abstract class AbstractClient implements Clientable {
 			if ( serverChannels.get( index )
 					.connect( new InetSocketAddress( hostEntry.getHost(), hostEntry.getPort() ) ) ) {
 				// in case that localhost is used
-				serverChannels.get( index ).register( selector, SelectionKey.OP_READ );
+				selectorLock.lock();
+				try{
+					selector.wakeup();
+					initialSelectionKey = serverChannels.get( index ).register( selector, SelectionKey.OP_READ );
+				}finally{
+					selectorLock.unlock();
+				}
 			}
 
 			if ( selector == null ) {
@@ -212,27 +239,34 @@ public abstract class AbstractClient implements Clientable {
 
 		int count = hostEntry.getMaxTrial();
 		while ( count > 0 ) {
+
 			try {
 				if ( serverChannels.get( index ).finishConnect() ) {
 
-					serverChannels.get( index ).register( selector, SelectionKey.OP_READ );
+					selectorLock.lock();
+					try {
+						selector.wakeup();
+						initialSelectionKey = serverChannels.get( index ).register( selector, SelectionKey.OP_READ );
+					}
+					finally {
+						selectorLock.unlock();
+					}
 
 					log.info( "connected to the server at: " + getServerHost( hostEntry.getHost(), hostEntry.getPort() ) );
 					break;
 				}
 			}
 			catch ( IOException ex ) {
-
 				log.error( "can't connect to: " + hostEntry.getHost() + " at " + hostEntry.getPort() + " after "
 						+ ( hostEntry.getMaxTrial() - count ) + " trie(s) with interval: "
 						+ ( INTERVAL_BETWEEN_CONNECT_TRY / 1000 ) + " second" );
 
 				// sleep();
 				configure( index, hostEntry, true );
+			}catch(Exception ex){
+				log.error(ex);
 			}
 
-			log.debug( "come here : serverChannels.get(index).isConnected ? "
-					+ serverChannels.get( index ).isConnected() );
 			sleep();
 			--count;
 		}
@@ -277,7 +311,7 @@ public abstract class AbstractClient implements Clientable {
 		serverChannels.clear();
 		serverChannels = null;
 		hostEntries = null;
-
+		initialSelectionKey = null;
 		closeSelector();
 	}
 
@@ -365,6 +399,20 @@ public abstract class AbstractClient implements Clientable {
 	 */
 	public String read(SocketChannel serverChannel) throws IOException {
 
+		return doRead( serverChannel );
+	
+	}
+
+	/**
+	 * Reads data on the channel.
+	 * 
+	 * @param serverChannel
+	 *            Holds channel between this client and the host.
+	 * @return Data read on the channel.
+	 * @throws IOException
+	 */
+	protected final String readNow(SocketChannel serverChannel) throws IOException {
+
 		while ( true ) {
 
 			selector.select();
@@ -374,29 +422,13 @@ public abstract class AbstractClient implements Clientable {
 
 				SelectionKey key = itr.next();
 
-				if ( key.isAcceptable() ) {
-					log.debug( "in blocking mode ? : " + serverChannel.isBlocking() );
-					if ( serverChannel.isBlocking() ) {
-						log.debug( "about to change to non blocking mode" );
-						serverChannel.configureBlocking( false );
-						log.debug( "about to register in the selector" );
-						serverChannel.register( getSelector(), SelectionKey.OP_READ );
-					}
-				}
-				else if ( key.isReadable() ) {
+				if ( key.isReadable() ) {
 					itr.remove();
 					String str = doRead( serverChannel );
 					if ( !str.isEmpty() ) {
+						log.debug( "str: " + str );
 						return str;
 					}
-				}
-				else if ( key.isWritable() ) {
-					log.debug( "found writable on selector" );
-					itr.remove();
-				}
-				else if ( key.isConnectable() ) {
-					log.debug( "found connectable on selector" );
-					itr.remove();
 				}
 			}
 		}
@@ -417,15 +449,17 @@ public abstract class AbstractClient implements Clientable {
 		try {
 			serverChannel.read( buffer );
 			buffer.flip();
-			byte[] b = new byte[buffer.remaining()];
-			buffer.get( b );
-			str = new String( b );
+			Charset charset = Charset.forName("us-ascii");
+			CharsetDecoder decoder = charset.newDecoder();
+			CharBuffer charBuffer = decoder.decode(buffer);
+			str = charBuffer.toString();
 		}
 		catch ( IOException ex ) {
 			throw ex;
 		}
 		finally {
 			buffer.clear();
+			buffer = null;
 		}
 
 		return str;
@@ -444,5 +478,174 @@ public abstract class AbstractClient implements Clientable {
 		for ( SocketChannel serverChannel : serverChannels ) {
 			closeServerChannel( serverChannel );
 		}
+	}
+	
+	protected final void workWithSelectionKey(SelectionKey selectionKey, Thread internalServerThread,
+			ServerSocketChannel internalServer) throws Exception {
+		try {
+			RequestMessage request = new RequestMessage();
+			ResponseMessage response = new ResponseMessage();
+			SocketChannel channel = null;
+
+			while ( selectionKey.selector().select() > 0 ) {
+				Iterator<SelectionKey> itr = selectionKey.selector().selectedKeys().iterator();
+				while ( itr.hasNext() ) {
+					SelectionKey readyKey = itr.next();
+					itr.remove();
+
+					if ( readyKey.isAcceptable() ) {
+						log.debug( "readyKey is acceptable" );
+						ServerSocketChannel ssc = (ServerSocketChannel) readyKey.channel();
+						channel = (SocketChannel) ssc.accept();
+						channel.configureBlocking( false );
+						channel.register( getSelector(), SelectionKey.OP_READ );
+					}
+					else if ( readyKey.isReadable() ) {
+						log.debug( "readyKey is readable" );
+
+						if ( channel == null ) {
+							log.warn( "channel is null, set up channel for read" );
+							channel = (SocketChannel) readyKey.channel();
+						}
+
+						String res = read( channel );
+						log.debug( "got res: " + res );
+
+						if ( res.isEmpty() ) {
+							log.warn( "reached the end of socket. about to close the channel" );
+							channel.close();
+						}
+
+						if ( isMessageRequest( res ) ) {
+							request.extractMessage( res );
+							if ( request.getContextPath().equals( "/liveness" ) ) {
+								String content = new StatusOK().add( new LivenessTrue() ).add( new Date() ).getJson();
+								log.debug( "about to response with: " + content + " ..." );
+								write( channel,
+										new ResponseMessage().createMessage( StatusCode._200,
+												HeaderUtil.getResponseLivenessHeader( content.length() ), content ) );
+								log.debug( "done with response ..." );
+							}
+							else {
+								log.debug( "got message: " + res );
+							}
+						}
+						else if ( isMessageResponse( res ) ) {
+							response.extractMessage( res );
+							if(response.contains( "nextHosts" )){
+								log.debug( "found response for greeting" );
+								response.get( "nextHosts" );
+								initializeConnection(internalServerThread,internalServer,response);
+							}
+						}
+						else {
+							log.debug( "non request message: " + read( channel ) );
+						}
+					}
+				}
+			}
+		}
+		catch ( Exception ex ) {
+			log.error( ex );
+			throw ex;
+		}
+	}
+
+	/**
+	 * Checks if the specified message is a request message or not.
+	 * 
+	 * @param message
+	 *            Checked if it's a request or not.
+	 * @return True if it's a request, false otherwise.
+	 */
+	protected final boolean isMessageRequest(String message) {
+
+		if ( message.startsWith( Verb.DELETE.toString() ) || message.startsWith( Verb.GET.toString() )
+				|| message.startsWith( Verb.POST.toString() ) ) {
+			return true;
+		}
+
+		return false;
+	}
+
+	protected final boolean isMessageResponse(String message) {
+		if ( message.startsWith( "HTTP/" ) ) {
+			return true;
+		}
+
+		return false;
+	}
+
+	/**
+	 * Initializes connection between this client and the server through greeting.
+	 * 
+	 * @param internalServerThread
+	 *            Internal server thread.
+	 * @param internalServer
+	 *            Internal server.
+	 * @param responseMessage
+	 *            Response message that has just gotten from the server.
+	 * @throws IOException
+	 */
+	private void initializeConnection(Thread internalServerThread, ServerSocketChannel internalServer,
+			ResponseMessage responseMessage) throws IOException {
+
+		closeServerChannel( getServerChannel( 0 ) );
+		clearServerChannels();
+
+		// sets next hosts.
+		setHostEntries( null );
+		log.debug( "response content here: " + responseMessage.getContent() );
+		setHostEntries( responseMessage.getNextHosts( ResponseMessage.KEY_NEXT_HOSTS ) );
+
+		if ( ( !isHostEntriesNull() ) && ( getHostEntry( 0 ) != null )
+				&& responseMessage.getReasonPhrase().equals( StatusCode._200.getString() )
+				&& responseMessage.get( "nextHosts" ) != null ) {
+			// TODO can be run concurrently
+			for ( int i = 0; i < getSizeOfHostEntries(); i++ ) {
+
+				// joined sfs
+				log.debug( "trying to connect to the next host from now on ..." );
+				try {
+					open( i, getHostEntry( i ) );
+				}
+				catch ( ConnectException ex ) {
+					// TODO re-ask logic here
+					log.error( ex );
+					log.warn( "need to ask interactive server to replace the host" );
+					closeServerChannel( getServerChannel( i ) );
+				}
+				catch ( Exception ex ) {
+					log.error( ex );
+				}
+				log.info( "opened with the next host successfully" );
+			}
+		}
+		else {
+			if ( responseMessage.getReasonPhrase().equals( StatusCode._200.getString() ) ) {
+				// TODO this clause for the debugging purpose. can be deleted later.
+				log.debug( "might be added as the root. response from server: " + responseMessage.getContent() );
+			}
+			else {
+				log.warn( "could not join sfs, because: " + responseMessage.getReasonPhrase() + " message: "
+						+ responseMessage.getContent() );
+				if ( internalServer != null ) {
+					try {
+						internalServer.close();
+						internalServer = null;
+					}
+					catch ( IOException ex ) {
+						log.error( ex );
+					}
+				}
+
+				internalServerThread.interrupt();
+				closeAllChannels();
+				return;
+			}
+		}
+
+		// TODO need to think what's done here
+		log.debug( "ready to do the next thing" );
 	}
 }
