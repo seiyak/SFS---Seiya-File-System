@@ -64,10 +64,11 @@ public abstract class Header {
 
 	public final String format() {
 
-		String headerEntries = doFormat();
-		logHeaderEntries( headerEntries );
+		//String headerEntries = doFormat();
+		//logHeaderEntries( headerEntries );
 
-		return headerEntries;
+		//return headerEntries;
+		return doFormat();
 	}
 
 	/**
