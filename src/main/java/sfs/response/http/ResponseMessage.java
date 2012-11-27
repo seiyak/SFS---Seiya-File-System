@@ -159,7 +159,7 @@ public class ResponseMessage extends Response {
 	 * @return Corresponding value for the key.
 	 */
 	public Object get(String key) {
-		log.debug("key here is: " + key);
+
 		JSONObject json = null;
 		try {
 			json = new JSONObject( content );
@@ -168,8 +168,30 @@ public class ResponseMessage extends Response {
 		}
 		catch ( JSONException ex ) {
 			log.error( ex );
+			log.error( "json: " + json );
 			return null;
 		}
+	}
+
+	/**
+	 * Checks if the content as JSON contains the specified key or not.
+	 * 
+	 * @param key
+	 *            Used to check the content as JSON.
+	 * @return True if the content contains the key, false otherwise.
+	 */
+	public boolean contains(String key) {
+
+		JSONObject json = null;
+		try {
+			json = new JSONObject( content );
+			return json.has( key );
+		}
+		catch ( JSONException ex ) {
+			log.error( ex );
+		}
+
+		return false;
 	}
 
 	/**
@@ -184,7 +206,7 @@ public class ResponseMessage extends Response {
 	public HostEntry[] getNextHosts(String key) {
 
 		HostEntry[] hostEntries = null;
-
+		log.debug( "key is: " + key );
 		try {
 			JSONArray array = (JSONArray) get( key );
 
