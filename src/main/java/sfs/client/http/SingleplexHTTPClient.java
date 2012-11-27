@@ -32,15 +32,15 @@ public class SingleplexHTTPClient extends HTTPClient {
 			log.error( new IllegalArgumentException( "shortConversation property is null. " ) );
 		}
 
-		open( 0, getHostEntry( 0 ) );
-		shortConversation.writeRequest( this, getServerChannel( 0 ), getHostEntry( 0 ) );
-		if ( !shortConversation.readResponse( this, getServerChannel( 0 ), getHostEntry( 0 ) ).get( "liveness" )
-				.toString().equals( "true" ) ) {
-
-			log.warn( "its parent seems to be dead, need to change the parent node ..." );
-			throw new IllegalArgumentException( "specified parent, "
-					+ getServerHost( getHostEntry( 0 ).getHost(), getHostEntry( 0 ).getPort() )
-					+ "is not alive. Need to change the parent node" );
+		try {
+			open( 0, getHostEntry( 0 ) );
+			shortConversation.writeRequest( this, getServerChannel( 0 ), getHostEntry( 0 ) );
+		}
+		catch ( Exception ex ) {
+			 log.warn( "its parent seems to be dead, need to change the parent node ..." );
+			 throw new IllegalArgumentException( "specified parent, "
+			 + getServerHost( getHostEntry( 0 ).getHost(), getHostEntry( 0 ).getPort() )
+			 + "is not alive. Need to change the parent node" );
 		}
 
 		log.debug( "its parent is alive" );
