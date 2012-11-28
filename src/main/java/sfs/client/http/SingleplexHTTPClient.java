@@ -1,6 +1,7 @@
 package sfs.client.http;
 
 import java.io.IOException;
+import java.nio.channels.AlreadyConnectedException;
 
 import org.apache.log4j.Logger;
 
@@ -34,16 +35,18 @@ public class SingleplexHTTPClient extends HTTPClient {
 
 		try {
 			open( 0, getHostEntry( 0 ) );
-			shortConversation.writeRequest( this, getServerChannel( 0 ), getHostEntry( 0 ) );
+			shortConversation.writeRequest( getServerChannel( 0 ), getHostEntry( 0 ) );
+			// TODO deal with here more nicely.
+		}catch(AlreadyConnectedException ex){
+			log.warn( ex );
+			shortConversation.writeRequest( getServerChannel( 0 ), getHostEntry( 0 ) );
 		}
 		catch ( Exception ex ) {
 			 log.warn( "its parent seems to be dead, need to change the parent node ..." );
 			 throw new IllegalArgumentException( "specified parent, "
 			 + getServerHost( getHostEntry( 0 ).getHost(), getHostEntry( 0 ).getPort() )
-			 + "is not alive. Need to change the parent node" );
+			 + " is not alive. Need to change the parent node" );
 		}
-
-		log.debug( "its parent is alive" );
 	}
 
 }
