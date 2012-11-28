@@ -146,6 +146,10 @@ public abstract class AbstractClient implements Clientable {
 		return selector;
 	}
 
+	protected final void setSelector() throws IOException {
+		selector = Selector.open();
+	}
+
 	protected final SelectionKey getInitialSelectionKey() {
 		return initialSelectionKey;
 	}
