@@ -3,7 +3,7 @@ package sfs.header.http;
 public class HeaderEntry {
 
 	private final String entry;
-	public static final HeaderEntry CONTENT_TYPE = new HeaderEntry( "Content-Type" );
+	public static final HeaderEntry CONTENT_TYPE = new HeaderEntry( "Content-type" );
 	public static final HeaderEntry DATE = new ResponseHeaderEntry( "Date" );
 
 	public HeaderEntry(String entry) {

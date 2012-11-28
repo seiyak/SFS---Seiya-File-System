@@ -2,6 +2,8 @@ package sfs.response.http;
 
 import static org.junit.Assert.*;
 
+import java.util.Map;
+
 import org.junit.Before;
 import org.junit.Test;
 
@@ -27,9 +29,10 @@ public class ResponseMessageTest {
 	public void testExtractMessage() {
 
 		String greeting = "HTTP/1.1 200 OK" + Ending.CRLF.toString();
-		greeting += "Content-Type: application/json" + Ending.CRLF.toString();
-		greeting += "Content-Length: 45" + Ending.CRLF.toString();
+		greeting += "Content-type: application/json" + Ending.CRLF.toString();
+		greeting += "Content-length: 45" + Ending.CRLF.toString();
 		greeting += "Date: Mon, Oct 22, 2012 08:15:05 PM GMT" + Ending.CRLF.toString();
+		greeting += "Greeting-back: true" + Ending.CRLF.toString();
 		greeting += Ending.CRLF.toString();
 		greeting += "{\"status\": \"OK\",\"message\": \"Welcome to SFS!\"}";
 		responseMessage.extractMessage( greeting );
@@ -37,14 +40,14 @@ public class ResponseMessageTest {
 		HTTPHeaderEntry[] header = responseMessage.getHeader();
 		checkEachHeader( new HTTPHeaderEntry[] { new HTTPHeaderEntry( HeaderEntry.CONTENT_TYPE, Mime.JSON ),
 				new HTTPHeaderEntry( ResponseHeaderEntry.CONTENT_LENGTH, 45 ),
-				new HTTPHeaderEntry( HeaderEntry.DATE, "" ) }, header );
+				new HTTPHeaderEntry( HeaderEntry.DATE, "Mon, Oct 22, 2012 08:15:05 PM GMT" ),
+				new HTTPHeaderEntry( ResponseHeaderEntry.GREETING_BACK, "true" ) }, header );
 		assertTrue( "getContent(): " + responseMessage.getContent() + "expecting: "
 				+ "{\"status\": \"OK\",\"message\": \"Welcome to SFS!\"}",
 				responseMessage.getContent().equals( "{\"status\": \"OK\",\"message\": \"Welcome to SFS!\"}" ) );
 		assertTrue( "expecting status=='OK' but found " + responseMessage.get( "status" ),
 				responseMessage.get( "status" ).equals( "OK" ) );
-		assertTrue( "expecting message==\"Welcome to SFS!\" but found "
-				+ responseMessage.get( "message" ),
+		assertTrue( "expecting message==\"Welcome to SFS!\" but found " + responseMessage.get( "message" ),
 				responseMessage.get( "message" ).equals( "Welcome to SFS!" ) );
 	}
 
@@ -63,8 +66,8 @@ public class ResponseMessageTest {
 	public void testGetNextHosts(){
 		
 		String input = "HTTP/1.1 200 OK" + Ending.CRLF.toString();
-		input += "Content-Type: application/json" + Ending.CRLF.toString();
-		input += "Content-Length: 45" + Ending.CRLF.toString();
+		input += "Content-type: application/json" + Ending.CRLF.toString();
+		input += "Content-length: 45" + Ending.CRLF.toString();
 		input += "Date: Mon, Oct 22, 2012 08:15:05 PM GMT" + Ending.CRLF.toString();
 		input += Ending.CRLF.toString();
 				
@@ -88,5 +91,21 @@ public class ResponseMessageTest {
 
 		assertTrue( "expecting res1.equals(expected but found res1==" + res1 + " expected==" + expected,
 				res1.equals( expected ) );
+	}
+	
+	@Test
+	public void testGetHeaderAsMap(){
+
+		String greeting = "HTTP/1.1 200 OK" + Ending.CRLF.toString();
+		greeting += "Content-type: application/json" + Ending.CRLF.toString();
+		greeting += "Content-length: 45" + Ending.CRLF.toString();
+		greeting += "Date: Mon, Oct 22, 2012 08:15:05 PM GMT" + Ending.CRLF.toString();
+		greeting += "Greeting-back: true" + Ending.CRLF.toString();
+		greeting += Ending.CRLF.toString();
+		greeting += "{\"status\": \"OK\",\"message\": \"Welcome to SFS!\"}";
+		responseMessage.extractMessage( greeting );
+		
+		Map<String,Object> headers = responseMessage.getHeaderAsMap();
+		assertTrue("expecting header.size()==4 but found " + headers.size(),headers.size() == 4);
 	}
 }

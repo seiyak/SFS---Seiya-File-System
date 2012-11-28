@@ -263,7 +263,6 @@ public class ResponseMessage extends Response {
 	public Map<String, Object> getHeaderAsMap() {
 
 		Map<String, Object> map = new HashMap<String, Object>();
-
 		if ( header != null && !header.isEmpty() ) {
 
 			for ( HTTPHeaderEntry entry : header ) {
