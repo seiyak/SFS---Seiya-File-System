@@ -24,6 +24,7 @@ import sfs.concatenable.date.Date;
 import sfs.concatenable.liveness.LivenessTrue;
 import sfs.concatenable.status.StatusOK;
 import sfs.entry.HostEntry;
+import sfs.header.http.ResponseHeaderEntry;
 import sfs.header.http.separator.Colon;
 import sfs.request.http.RequestMessage;
 import sfs.response.http.ResponseMessage;
@@ -411,37 +412,6 @@ public abstract class AbstractClient implements Clientable {
 	 * @return Data read on the channel.
 	 * @throws IOException
 	 */
-	protected final String readNow(SocketChannel serverChannel) throws IOException {
-
-		while ( true ) {
-
-			selector.select();
-			Iterator<SelectionKey> itr = selector.selectedKeys().iterator();
-
-			while ( itr.hasNext() ) {
-
-				SelectionKey key = itr.next();
-
-				if ( key.isReadable() ) {
-					itr.remove();
-					String str = doRead( serverChannel );
-					if ( !str.isEmpty() ) {
-						log.debug( "str: " + str );
-						return str;
-					}
-				}
-			}
-		}
-	}
-
-	/**
-	 * Reads data on the channel.
-	 * 
-	 * @param serverChannel
-	 *            Holds channel between this client and the host.
-	 * @return Data read on the channel.
-	 * @throws IOException
-	 */
 	private String doRead(SocketChannel serverChannel) throws IOException {
 
 		String str = "";
@@ -531,11 +501,9 @@ public abstract class AbstractClient implements Clientable {
 							}
 						}
 						else if ( isMessageResponse( res ) ) {
-							response.extractMessage( res );
-							if(response.contains( "nextHosts" )){
+							if ( response.extractMessage( res ).getHeaderAsMap().get( ResponseHeaderEntry.GREETING_BACK.toString()) != null ) {
 								log.debug( "found response for greeting" );
-								response.get( "nextHosts" );
-								initializeConnection(internalServerThread,internalServer,response);
+								initializeConnection( internalServerThread, internalServer, response );
 							}
 						}
 						else {
