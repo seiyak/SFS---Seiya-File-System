@@ -1,16 +1,15 @@
 package sfs.client.http.shortconversation;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
 
-import sfs.client.http.Clientable;
 import sfs.entry.HostEntry;
 import sfs.header.http.separator.Colon;
 import sfs.request.http.RequestMessage;
-import sfs.response.http.ResponseMessage;
 import sfs.util.header.http.HeaderUtil;
 import sfs.util.ipaddress.LocalIPAddress;
 import sfs.util.string.StringUtil;
@@ -44,22 +43,26 @@ public class LivenessConversation implements ShortConversation {
 		return serverAddress + new Colon().getSeparator() + port;
 	}
 
-	public void writeRequest(Clientable clientable, SocketChannel socketChannel, HostEntry hostEntry)
-			throws IOException {
+	/**
+	 * Writes liveness request onto the specified socket channel.
+	 * 
+	 * @param socketChannel
+	 *            Used to write a liveness request.
+	 * @param hostEntry
+	 *            Host to be sent the liveness request.
+	 */
+	public void writeRequest(SocketChannel socketChannel, HostEntry hostEntry) throws IOException {
 
 		if ( localAddressMap == null ) {
 			log.warn( "localAddressMap is null, call LocalIPAddress.getLocalIPAddress() method" );
 			localAddressMap = LocalIPAddress.getLocalIPAddress();
 		}
 
-		clientable.write( socketChannel, new RequestMessage().createMessage( Verb.GET, StringUtil
-				.getContextPath( LIVENESS_PATH ), HeaderUtil.getRequestLivenessHeader( hostEntry,
-				getServerHost( hostEntry.getHost(), hostEntry.getPort() ), localAddressMap.get( "v4" ) ) ) );
-	}
-
-	public ResponseMessage readResponse(Clientable clientable, SocketChannel socketChannel, HostEntry hostEntry)
-			throws IOException {
-
-		return new ResponseMessage().extractMessage( clientable.read( socketChannel ) );
+		socketChannel.write( ByteBuffer.wrap( new RequestMessage().createMessage(
+				Verb.GET,
+				StringUtil.getContextPath( LIVENESS_PATH ),
+				HeaderUtil.getRequestLivenessHeader( hostEntry,
+						getServerHost( hostEntry.getHost(), hostEntry.getPort() ), localAddressMap.get( "v4" ) ) )
+				.getBytes() ) );
 	}
 }
