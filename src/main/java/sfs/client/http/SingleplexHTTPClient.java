@@ -34,12 +34,9 @@ public class SingleplexHTTPClient extends HTTPClient {
 		}
 
 		try {
-			open( 0, getHostEntry( 0 ) );
-			shortConversation.writeRequest( getServerChannel( 0 ), getHostEntry( 0 ) );
-			// TODO deal with here more nicely.
+			doInitiate();
 		}catch(AlreadyConnectedException ex){
 			log.warn( ex );
-			shortConversation.writeRequest( getServerChannel( 0 ), getHostEntry( 0 ) );
 		}
 		catch ( Exception ex ) {
 			 log.warn( "its parent seems to be dead, need to change the parent node ..." );
@@ -49,4 +46,22 @@ public class SingleplexHTTPClient extends HTTPClient {
 		}
 	}
 
+	/**
+	 * Initiates short conversation.
+	 * 
+	 * @throws IOException
+	 */
+	private void doInitiate() throws IOException {
+
+		if ( ( getServerChannel( 0 ) != null ) ) {
+			if ( !isConnected( getServerChannel( 0 ) ) ) {
+				open( 0, getHostEntry( 0 ) );
+			}
+		}
+		else {
+			open( 0, getHostEntry( 0 ) );
+		}
+
+		shortConversation.writeRequest( getServerChannel( 0 ), getHostEntry( 0 ) );
+	}
 }
