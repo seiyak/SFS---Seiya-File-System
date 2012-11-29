@@ -58,6 +58,7 @@ public abstract class PeriodicTimer extends TimerTask {
 	 * Clears all the periodic tasks.
 	 */
 	public final void clearAllPeriodicTasks() {
+		periodicTimer.cancel();
 		periodicTasks.clear();
 	}
 
