@@ -13,10 +13,8 @@ import sfs.client.http.shortconversation.LivenessConversation;
 import sfs.entry.Entry;
 import sfs.entry.HostEntry;
 import sfs.entry.StatusEntry;
-import sfs.structure.Node;
 import sfs.structure.Structure;
 import sfs.structure.StructureNode;
-import sfs.util.date.DateUtil;
 
 public class NodeManager<T extends StructureNode> {
 
