@@ -125,6 +125,11 @@ public abstract class AbstractClient implements Clientable {
 	 * @return SocketChannel object specified by the index.
 	 */
 	protected final SocketChannel getServerChannel(int index) {
+
+		if ( serverChannels.isEmpty() || ( ( index < 0 ) || ( index >= serverChannels.size() ) ) ) {
+			return null;
+		}
+
 		return serverChannels.get( index );
 	}
 
