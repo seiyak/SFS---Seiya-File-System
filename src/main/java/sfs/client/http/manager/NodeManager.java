@@ -7,6 +7,8 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 
 import sfs.client.http.SingleplexHTTPClient;
+import sfs.client.http.manager.periodic.PeriodicLivenessTimer;
+import sfs.client.http.manager.periodic.PeriodicTimer;
 import sfs.client.http.shortconversation.LivenessConversation;
 import sfs.entry.Entry;
 import sfs.entry.HostEntry;
@@ -19,27 +21,24 @@ import sfs.util.date.DateUtil;
 public class NodeManager<T extends StructureNode> {
 
 	private Structure<T> structure;
-	private final HostEntry hostEntry;
 	private final Map<String, T> nodeMap;
+	private final PeriodicTimer periodicTimer;
 	private static Logger log = Logger.getLogger( NodeManager.class );
 
-	public NodeManager(HostEntry hostEntry) {
-		this.hostEntry = hostEntry;
-		nodeMap = new HashMap<String,T>();
+	public NodeManager() {
+		nodeMap = new HashMap<String, T>();
+		periodicTimer = new PeriodicLivenessTimer();
 	}
 
-	public NodeManager(HostEntry hostEntry, Structure<T> structure) {
-		this.hostEntry = hostEntry;
+	public NodeManager(Structure<T> structure) {
 		this.structure = structure;
-		nodeMap = new HashMap<String,T>();
+		nodeMap = new HashMap<String, T>();
+		periodicTimer = new PeriodicLivenessTimer();
+		addAndSchedulePeriodicTasks( this.structure.getRoot() );
 	}
 
-	public HostEntry gethostEntry(){
-		return hostEntry;
-	}
-	
 	public boolean setStructure(Structure<T> structure) {
-		//TODO not fully implemented yet.
+		// TODO not fully implemented yet.
 		boolean done = false;
 
 		if ( this.structure == null ) {
@@ -66,20 +65,20 @@ public class NodeManager<T extends StructureNode> {
 
 		T node = null;
 		StatusEntry status = null;
-		
-		log.debug("about to add t: " + t + " " + t.getNode());
-		log.debug("exists ? " + nodeMap.get( t.getNode().getOrigin() ));
+
+		log.debug( "about to add t: " + t + " " + t.getNode() );
+		log.debug( "exists ? " + nodeMap.get( t.getNode().getOrigin() ) );
 		if ( nodeMap.get( t.getNode().getOrigin() ) == null ) {
 			if ( ( node = structure.add( t ) ) != null ) {
-				
+
 				log.debug( "parent is not null, " + node.getNode() );
 				nodeMap.put( t.getNode().getOrigin(), t );
-				
+
 				if ( !isParentAlive( node ) ) {
 					log.warn( "need to relocate the node to another parent since the parent looks dead." );
 				}
-				
-				log.debug("added as a child node, " + t + " parent: " + node.getNode());
+
+				log.debug( "added as a child node, " + t + " parent: " + node.getNode() );
 				status = new StatusEntry( createHostEntry( node ), createStatusEntry( "status", "OK", "message",
 						"successfully added" ) );
 			}
@@ -90,6 +89,7 @@ public class NodeManager<T extends StructureNode> {
 					// t is added as the root.
 					status = new StatusEntry( null, createStatusEntry( "status", "OK", "message",
 							"successfully added as the root" ) );
+					addAndSchedulePeriodicTasks(t);
 				}
 				else {
 
@@ -124,29 +124,30 @@ public class NodeManager<T extends StructureNode> {
 				"try to delete non-exisitng node, " + t.getNode().getOrigin() + ", based on the origin" ) );
 	}
 
-	private Entry[] createStatusEntry(String ... status){
-		
-		if((status.length % 2) != 0){
+	private Entry[] createStatusEntry(String... status) {
+
+		if ( ( status.length % 2 ) != 0 ) {
 			log.warn( "status has odd number. some of them miss key or value" );
 			return null;
 		}
-		
+
 		Entry[] entries = new Entry[status.length >> 1];
 		int entryIndex = 0, statusIndex = 0;
-		while((entryIndex < entries.length) && (statusIndex < status.length)){
-			
-			if((statusIndex % 2) == 0){
-				if(entries[entryIndex] == null){
+		while ( ( entryIndex < entries.length ) && ( statusIndex < status.length ) ) {
+
+			if ( ( statusIndex % 2 ) == 0 ) {
+				if ( entries[entryIndex] == null ) {
 					entries[entryIndex] = new Entry();
 				}
-				
+
 				entries[entryIndex].setKey( status[statusIndex] );
 				statusIndex++;
-			}else{
+			}
+			else {
 				entries[entryIndex++].setValue( status[statusIndex++] );
 			}
 		}
-		
+
 		return entries;
 	}
 
@@ -156,16 +157,6 @@ public class NodeManager<T extends StructureNode> {
 
 	public void add(String key, String value) {
 		throw new UnsupportedOperationException( "not implemented yet" );
-	}
-
-	/**
-	 * Creates the root node Node object from the hostEntry property.
-	 * The created object will be the root of the node data structure in such as Star.
-	 * 
-	 * @return Node object created from the hostEntry property.
-	 */
-	public Node createRootNode() {
-		return new Node( DateUtil.getTimeInGMT(), hostEntry.getHost(), hostEntry.getPort(), hostEntry.getPort() );
 	}
 
 	private HostEntry[] createHostEntry(T t) {
@@ -193,16 +184,27 @@ public class NodeManager<T extends StructureNode> {
 			log.error( ex );
 			alive = false;
 		}
-		finally {
-			try {
-				client.close();
-			}
-			catch ( IOException e ) {
-				log.error( e );
-				alive = false;
-			}
-		}
 
 		return alive;
+	}
+
+	/**
+	 * Adds a periodic task and schedule the task.
+	 * 
+	 * @param t
+	 *            Used to create the other side of the connection. It can be the root of the node structure.
+	 */
+	private void addAndSchedulePeriodicTasks(T t) {
+
+		log.info( "about to start livenss check for the root: " + t );
+		periodicTimer.addPeriodicTask( createHostEntry( t )[0] );
+		periodicTimer.schedulePeriodicTasks( 1000, 3000 );
+	}
+
+	/**
+	 * Wrapper method for periodicTimer.clearAllPeriodicTasks() for convenience.
+	 */
+	public void clearPeriodicTasks() {
+		periodicTimer.clearAllPeriodicTasks();
 	}
 }
