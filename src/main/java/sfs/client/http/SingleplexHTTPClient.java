@@ -39,10 +39,11 @@ public class SingleplexHTTPClient extends HTTPClient {
 			log.warn( ex );
 		}
 		catch ( Exception ex ) {
-			 log.warn( "its parent seems to be dead, need to change the parent node ..." );
-			 throw new IllegalArgumentException( "specified parent, "
-			 + getServerHost( getHostEntry( 0 ).getHost(), getHostEntry( 0 ).getPort() )
-			 + " is not alive. Need to change the parent node" );
+			log.error( ex );
+			log.warn( "its parent/the root node seems to be dead, need to change/rotate the parent/root node ..." );
+			throw new IllegalArgumentException( "specified parent, "
+					+ getServerHost( getHostEntry( 0 ).getHost(), getHostEntry( 0 ).getPort() )
+					+ " is not alive. Need to change the parent node" );
 		}
 	}
 
