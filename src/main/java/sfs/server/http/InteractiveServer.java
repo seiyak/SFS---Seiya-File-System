@@ -6,6 +6,7 @@ import java.util.concurrent.Executors;
 
 import sfs.client.http.manager.NodeManager;
 import sfs.entry.HostEntry;
+import sfs.server.http.handler.DeleteNodeHandler;
 import sfs.server.http.handler.GreetingHandler;
 import sfs.server.http.handler.InspectNodeHandler;
 import sfs.server.http.handler.ListActiveNodesHandler;
@@ -32,7 +33,7 @@ public class InteractiveServer implements HttpServerable {
 		this.hostEntry = hostEntry;
 		this.backLog = 0;
 		viewCreator = new JSoupViewCreator();
-		nodeManager = new NodeManager<StructureNode>( this.hostEntry );
+		nodeManager = new NodeManager<StructureNode>();
 	}
 
 	public InteractiveServer(HostEntry hostEntry, int backLog) {
@@ -40,7 +41,7 @@ public class InteractiveServer implements HttpServerable {
 		this.hostEntry = hostEntry;
 		this.backLog = backLog;
 		viewCreator = new JSoupViewCreator();
-		nodeManager = new NodeManager<StructureNode>( this.hostEntry );
+		nodeManager = new NodeManager<StructureNode>();
 	}
 
 	public InteractiveServer(HostEntry hostEntry, int backLog, ViewCreator viewCreator) {
@@ -48,7 +49,7 @@ public class InteractiveServer implements HttpServerable {
 		this.hostEntry = hostEntry;
 		this.backLog = backLog;
 		this.viewCreator = viewCreator;
-		nodeManager = new NodeManager<StructureNode>( this.hostEntry );
+		nodeManager = new NodeManager<StructureNode>();
 	}
 
 	public int getBackLog() {
@@ -102,6 +103,7 @@ public class InteractiveServer implements HttpServerable {
 		
 		server.createContext( "/sfs", new WelcomeHandler(viewCreator) );
 		server.createContext( "/greeting", new GreetingHandler( nodeManager ) );
+		server.createContext("/delete/node", new DeleteNodeHandler(nodeManager));
 		server.createContext( "/inspect/node", new InspectNodeHandler( viewCreator ) );
 		server.createContext("/list/activeNodes", new ListActiveNodesHandler(nodeManager));
 	}
