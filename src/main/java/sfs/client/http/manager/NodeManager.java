@@ -153,10 +153,6 @@ public class NodeManager<T extends StructureNode> {
 		return structure.getSize();
 	}
 
-	public void add(String key, String value) {
-		throw new UnsupportedOperationException( "not implemented yet" );
-	}
-
 	private HostEntry[] createHostEntry(T t) {
 
 		return new HostEntry[] { new HostEntry( t.getNode().getOrigin(), t.getNode().getInternal() ) };
