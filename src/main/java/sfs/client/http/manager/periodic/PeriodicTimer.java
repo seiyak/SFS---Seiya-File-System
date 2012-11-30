@@ -15,7 +15,7 @@ public abstract class PeriodicTimer extends TimerTask {
 
 	private List<SingleplexHTTPClient> periodicTasks;
 	private final Timer periodicTimer;
-	private static Integer count = 0;
+	private Integer count = 0;
 	private static Logger log = Logger.getLogger( PeriodicTimer.class );
 
 	protected PeriodicTimer() {
