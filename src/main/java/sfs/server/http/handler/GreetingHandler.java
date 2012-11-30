@@ -9,7 +9,7 @@ import org.apache.log4j.Logger;
 import sfs.client.http.manager.NodeManager;
 import sfs.entry.Entry;
 import sfs.entry.HostEntry;
-import sfs.entry.StatusEntry;
+import sfs.entry.StatusEntryable;
 import sfs.header.http.HeaderEntry;
 import sfs.header.http.RequestHeaderEntry;
 import sfs.header.http.ResponseHeaderEntry;
@@ -47,7 +47,7 @@ public class GreetingHandler extends AbstractHandler {
 		}
 
 		Node node = generateNode( exchange.getRequestHeaders().getFirst( RequestHeaderEntry.GREETING.toString() ) );
-		StatusEntry status = nodeManager.add( new MultiNode( node ) );
+		StatusEntryable status = nodeManager.add( new MultiNode( node ) );
 		String response = createResponseMessage( status.getHostEntries(), status.getStatus() );
 		log.debug("about to send to " + exchange.getRemoteAddress().getAddress() + " response: " + response);
 		writeResponseBack( exchange, status.getStatus()[0].getValue(), response );

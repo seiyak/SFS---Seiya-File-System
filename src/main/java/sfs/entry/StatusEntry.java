@@ -1,6 +1,6 @@
 package sfs.entry;
 
-public class StatusEntry {
+public class StatusEntry implements StatusEntryable{
 
 	private final HostEntry[] hostEntries;
 	private final Entry[] status;

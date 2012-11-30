@@ -13,6 +13,7 @@ import sfs.client.http.manager.periodic.DummyHTTPClient;
 import sfs.entry.Entry;
 import sfs.entry.HostEntry;
 import sfs.entry.StatusEntry;
+import sfs.entry.StatusEntryable;
 import sfs.structure.Node;
 import sfs.structure.StructureNode;
 import sfs.structure.tree.MultiNode;
@@ -84,7 +85,7 @@ public class NodeManagerTest {
 			log.info( "about to assert other aspects of nodeManager" );
 		}
 
-		StatusEntry entry = nodeManager.add( node2 );
+		StatusEntryable entry = nodeManager.add( node2 );
 		assertNotNull( "expecting entry != null but found null", entry );
 		assertTrue( "expecting entry.getStatus().length == 2 but found " + entry.getStatus().length,
 				entry.getStatus().length == 2 );

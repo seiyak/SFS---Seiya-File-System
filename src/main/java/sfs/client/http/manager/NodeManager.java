@@ -13,10 +13,11 @@ import sfs.client.http.shortconversation.LivenessConversation;
 import sfs.entry.Entry;
 import sfs.entry.HostEntry;
 import sfs.entry.StatusEntry;
+import sfs.entry.StatusEntryable;
 import sfs.structure.Structure;
 import sfs.structure.StructureNode;
 
-public class NodeManager<T extends StructureNode> {
+public class NodeManager<T extends StructureNode> implements NodeManagerable<T> {
 
 	private Structure<T> structure;
 	private final Map<String, T> nodeMap;
@@ -59,7 +60,7 @@ public class NodeManager<T extends StructureNode> {
 		throw new UnsupportedOperationException( "not implemented yet" );
 	}
 
-	public StatusEntry add(T t) {
+	public StatusEntryable add(T t) {
 
 		T node = null;
 		StatusEntry status = null;
@@ -105,7 +106,7 @@ public class NodeManager<T extends StructureNode> {
 		return status;
 	}
 
-	public StatusEntry delete(T t) {
+	public StatusEntryable delete(T t) {
 
 		T node = null;
 		if ( nodeMap.get( t.getNode().getOrigin() ) != null ) {
@@ -200,5 +201,9 @@ public class NodeManager<T extends StructureNode> {
 	 */
 	public void clearPeriodicTasks() {
 		periodicTimer.clearAllPeriodicTasks();
+	}
+
+	public StatusEntryable rotate(T t) {
+		throw new UnsupportedOperationException( "not implemented yet" );
 	}
 }
