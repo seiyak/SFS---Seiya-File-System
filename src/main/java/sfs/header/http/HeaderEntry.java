@@ -6,6 +6,7 @@ public class HeaderEntry {
 	public static final HeaderEntry CONTENT_LENGTH = new HeaderEntry("Content-length");
 	public static final HeaderEntry CONTENT_TYPE = new HeaderEntry( "Content-type" );
 	public static final HeaderEntry DATE = new HeaderEntry( "Date" );
+	public static final HeaderEntry TRANSFER_ENCODING = new HeaderEntry( "Transfer-Encoding" );
 
 	public HeaderEntry(String entry) {
 		this.entry = entry;
