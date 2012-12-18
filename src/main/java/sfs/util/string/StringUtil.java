@@ -122,6 +122,45 @@ public class StringUtil {
 	}
 
 	/**
+	 * Searches the specified pattern within the specified string and returns the first index of the occurrence if and
+	 * only if the pattern is found,
+	 * false otherwise. This method implements The Boyer-Moore Fast String Searching Algorithm.
+	 * 
+	 * @param str
+	 *            String where the pattern is searched.
+	 * @param pattern
+	 *            To be searched within the string.
+	 * @return The first index of the occurrence if the pattern is found, -1 otherwise.
+	 */
+	public static int searchFirstIndexOfByMB(String str, String pattern) {
+
+		Map<Character, Integer> shiftMapFromLast = calculateShift( pattern.toCharArray() );
+
+		int index = doSearchIndexOf( str.toCharArray(), pattern.toCharArray(), shiftMapFromLast );
+		return index >= 0 ? ( index - ( pattern.length() - 1 ) ) : -1;
+	}
+
+	/**
+	 * Searches the specified pattern within the specified string and returns the last index of the occurrence if and
+	 * only if the pattern is found,
+	 * false otherwise. This method implements The Boyer-Moore Fast String Searching Algorithm.
+	 * 
+	 * @param str
+	 *            String where the pattern is searched.
+	 * @param pattern
+	 *            To be searched within the string.
+	 * @return The last index of the occurrence if the pattern is found, -1 otherwise.
+	 */
+	public static int searchLastIndexOfByMB(String str, String pattern) {
+
+		Map<Character, Integer> shiftMapFromLast = calculateShift( pattern.toCharArray() );
+
+		int index = doSearchIndexOf( str.toCharArray(), pattern.toCharArray(), shiftMapFromLast );
+		
+		return index < str.length() ? index : -1;
+	}
+
+	/**
 	 * Calculates shifts from the right of the specified char array.
 	 * 
 	 * @param chars
@@ -169,6 +208,36 @@ public class StringUtil {
 		}
 
 		return false;
+	}
+
+	/**
+	 * Searches the specified pattern within string and returns the first index of the occurrence.
+	 * 
+	 * @param strChar
+	 *            String as char array.
+	 * @param patternChar
+	 *            Pattern as char array.
+	 * @param shiftMapFromLast
+	 *            Map holding shifts for each character within the pattern.
+	 * @return The first index of the occurrence if the pattern is found, -1 otherwise.
+	 */
+	private static int doSearchIndexOf(char[] strChar, char[] patternChar, Map<Character, Integer> shiftMapFromLast) {
+
+		int strIndex = patternChar.length - 1;
+		int numOfShift = 0;
+
+		while ( strIndex < strChar.length ) {
+
+			numOfShift = findMisMatch( strChar, strIndex, patternChar, shiftMapFromLast );
+
+			if ( numOfShift == 0 ) {
+				return strIndex;
+			}
+
+			strIndex += numOfShift;
+		}
+
+		return -1;
 	}
 
 	/**

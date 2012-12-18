@@ -59,13 +59,9 @@ public class StringUtilTest {
 		boolean found = StringUtil.searchByBM( str, pattern );
 		assertTrue( "expecting found==true but found " + found, found );
 
-		System.out.println( "" );
-
 		pattern = "amp";
 		found = StringUtil.searchByBM( str, pattern );
 		assertTrue( "expecting found==true but found " + found, found );
-
-		System.out.println( "" );
 
 		pattern = "mple";
 		found = StringUtil.searchByBM( str, pattern );
@@ -74,5 +70,47 @@ public class StringUtilTest {
 		pattern = "pll";
 		found = StringUtil.searchByBM( str, pattern );
 		assertFalse( "expecting found==false but found " + found, found );
+	}
+
+	@Test
+	public void testSearchFirstIndexOfByMB() {
+
+		String pattern = "example";
+		String str = "here is a simple example";
+		int index = StringUtil.searchFirstIndexOfByMB( str, pattern );
+		assertTrue( "expecting index==17 but found " + index, index == 17 );
+
+		pattern = "amp";
+		index = StringUtil.searchFirstIndexOfByMB( str, pattern );
+		assertTrue( "expecting index==19 but found " + index, index == 19 );
+
+		pattern = "mple";
+		index = StringUtil.searchFirstIndexOfByMB( str, pattern );
+		assertTrue( "expecting index==12 but found " + index, index == 12 );
+
+		pattern = "pll";
+		index = StringUtil.searchFirstIndexOfByMB( str, pattern );
+		assertTrue( "expecting index==-1 but found " + index, index == -1 );
+	}
+
+	@Test
+	public void testSearchLastIndexOfByMB() {
+
+		String pattern = "example";
+		String str = "here is a simple example";
+		int index = StringUtil.searchLastIndexOfByMB( str, pattern );
+		assertTrue( "expecting index==23 but found " + index, index == 23 );
+
+		pattern = "amp";
+		index = StringUtil.searchLastIndexOfByMB( str, pattern );
+		assertTrue( "expecting index==21 but found " + index, index == 21 );
+
+		pattern = "mple";
+		index = StringUtil.searchLastIndexOfByMB( str, pattern );
+		assertTrue( "expecting index==15 but found " + index, index == 15 );
+
+		pattern = "pll";
+		index = StringUtil.searchLastIndexOfByMB( str, pattern );
+		assertTrue( "expecting index==-1 but found " + index, index == -1 );
 	}
 }
