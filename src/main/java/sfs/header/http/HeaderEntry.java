@@ -3,9 +3,9 @@ package sfs.header.http;
 public class HeaderEntry {
 
 	private final String entry;
-	public static final ResponseHeaderEntry CONTENT_LENGTH = new ResponseHeaderEntry("Content-length");
+	public static final HeaderEntry CONTENT_LENGTH = new HeaderEntry("Content-length");
 	public static final HeaderEntry CONTENT_TYPE = new HeaderEntry( "Content-type" );
-	public static final HeaderEntry DATE = new ResponseHeaderEntry( "Date" );
+	public static final HeaderEntry DATE = new HeaderEntry( "Date" );
 
 	public HeaderEntry(String entry) {
 		this.entry = entry;
