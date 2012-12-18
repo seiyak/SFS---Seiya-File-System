@@ -51,4 +51,28 @@ public class StringUtilTest {
 		}
 	}
 
+	@Test
+	public void testSearchByBM() {
+
+		String pattern = "example";
+		String str = "here is a simple example";
+		boolean found = StringUtil.searchByBM( str, pattern );
+		assertTrue( "expecting found==true but found " + found, found );
+
+		System.out.println( "" );
+
+		pattern = "amp";
+		found = StringUtil.searchByBM( str, pattern );
+		assertTrue( "expecting found==true but found " + found, found );
+
+		System.out.println( "" );
+
+		pattern = "mple";
+		found = StringUtil.searchByBM( str, pattern );
+		assertTrue( "expecting found==true but found " + found, found );
+
+		pattern = "pll";
+		found = StringUtil.searchByBM( str, pattern );
+		assertFalse( "expecting found==false but found " + found, found );
+	}
 }
