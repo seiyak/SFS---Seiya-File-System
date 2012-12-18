@@ -111,7 +111,7 @@ public class ReflectionUtilTest {
 			else if ( entry.getKey().toString().equals( "Content-Length" ) ) {
 				assertTrue(
 						"expecting entry.getValue()==ResponseHeaderEntry.CONTENT_LENGTH but found " + entry.getValue(),
-						entry.getValue().equals( ResponseHeaderEntry.CONTENT_LENGTH ) );
+						entry.getValue().equals( HeaderEntry.CONTENT_LENGTH ) );
 			}
 			else if ( entry.getKey().toString().equals( "Liveness-Back" ) ) {
 				assertTrue(

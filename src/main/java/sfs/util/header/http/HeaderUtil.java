@@ -22,7 +22,7 @@ public class HeaderUtil {
 	public static HTTPHeaderEntry[] getResponseLivenessHeader() {
 
 		return new HTTPHeaderEntry[] { new HTTPHeaderEntry( HeaderEntry.CONTENT_TYPE, Mime.JSON ),
-				new HTTPHeaderEntry( ResponseHeaderEntry.CONTENT_LENGTH, 0 ),
+				new HTTPHeaderEntry( HeaderEntry.CONTENT_LENGTH, 0 ),
 				new HTTPHeaderEntry( ResponseHeaderEntry.LIVENESS_BACK, "true" ),
 				new HTTPHeaderEntry( HeaderEntry.DATE, DateUtil.getTimeInGMT() ) };
 	}
@@ -30,7 +30,7 @@ public class HeaderUtil {
 	public static HTTPHeaderEntry[] getResponseLivenessHeader(int contentLength) {
 
 		return new HTTPHeaderEntry[] { new HTTPHeaderEntry( HeaderEntry.CONTENT_TYPE, Mime.JSON ),
-				new HTTPHeaderEntry( ResponseHeaderEntry.CONTENT_LENGTH, contentLength ),
+				new HTTPHeaderEntry( HeaderEntry.CONTENT_LENGTH, contentLength ),
 				new HTTPHeaderEntry( ResponseHeaderEntry.LIVENESS_BACK, "true" ),
 				new HTTPHeaderEntry( HeaderEntry.DATE, DateUtil.getTimeInGMT() ) };
 	}

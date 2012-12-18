@@ -39,7 +39,7 @@ public class ResponseMessageTest {
 
 		HTTPHeaderEntry[] header = responseMessage.getHeader();
 		checkEachHeader( new HTTPHeaderEntry[] { new HTTPHeaderEntry( HeaderEntry.CONTENT_TYPE, Mime.JSON ),
-				new HTTPHeaderEntry( ResponseHeaderEntry.CONTENT_LENGTH, 45 ),
+				new HTTPHeaderEntry( HeaderEntry.CONTENT_LENGTH, 45 ),
 				new HTTPHeaderEntry( HeaderEntry.DATE, "Mon, Oct 22, 2012 08:15:05 PM GMT" ),
 				new HTTPHeaderEntry( ResponseHeaderEntry.GREETING_BACK, "true" ) }, header );
 		assertTrue( "getContent(): " + responseMessage.getContent() + "expecting: "
@@ -81,11 +81,11 @@ public class ResponseMessageTest {
 
 		String message = "{\"message\":\"hello\"}";
 		String res1 = responseMessage.createMessage( StatusCode._200, new HTTPHeaderEntry[] {
-				new HTTPHeaderEntry( ResponseHeaderEntry.CONTENT_LENGTH, message.length() ),
+				new HTTPHeaderEntry( HeaderEntry.CONTENT_LENGTH, message.length() ),
 				new HTTPHeaderEntry( HeaderEntry.CONTENT_TYPE, Mime.JSON ),
 				new HTTPHeaderEntry( ResponseHeaderEntry.LIVENESS_BACK, true ) }, message );
 
-		String expected = "HTTP/1.1 200 OK" + Ending.CRLF + ResponseHeaderEntry.CONTENT_LENGTH + ": "
+		String expected = "HTTP/1.1 200 OK" + Ending.CRLF + HeaderEntry.CONTENT_LENGTH + ": "
 				+ message.length() + Ending.CRLF + HeaderEntry.CONTENT_TYPE + ": " + Mime.JSON + Ending.CRLF
 				+ ResponseHeaderEntry.LIVENESS_BACK + ": " + true + Ending.CRLF + Ending.CRLF + message;
 
