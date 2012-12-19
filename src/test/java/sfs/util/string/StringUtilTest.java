@@ -113,4 +113,25 @@ public class StringUtilTest {
 		index = StringUtil.searchLastIndexOfByMB( str, pattern );
 		assertTrue( "expecting index==-1 but found " + index, index == -1 );
 	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void testSearchFirstIndexOfByMBWithFromIndex() {
+
+		String pattern = "example";
+		String str = "here is a simple example";
+
+		int index = StringUtil.searchFirstIndexOfByMB( str, pattern, 18 );
+		assertTrue( "expecting index==-1 but found " + index, index == -1 );
+
+		index = StringUtil.searchFirstIndexOfByMB( str, pattern, 17 );
+		assertTrue( "expecting index==17 but found " + index, index == 17 );
+
+		index = StringUtil.searchFirstIndexOfByMB( str, pattern, 16 );
+		assertTrue( "expecting index==17 but found " + index, index == 17 );
+
+		index = StringUtil.searchFirstIndexOfByMB( str, pattern, 15 );
+		assertTrue( "expecting index==17 but found " + index, index == 17 );
+
+		index = StringUtil.searchFirstIndexOfByMB( str, pattern, str.length() );
+	}
 }
