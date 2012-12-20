@@ -182,7 +182,7 @@ public class StringUtil {
 		Map<Character, Integer> shiftMapFromLast = calculateShift( pattern.toCharArray() );
 
 		int index = doSearchIndexOf( str.toCharArray(), pattern.toCharArray(), shiftMapFromLast );
-		
+
 		return index < str.length() ? index : -1;
 	}
 
@@ -281,48 +281,67 @@ public class StringUtil {
 	private static int findMisMatch(char[] strChar, int strIndex, char[] patternChar,
 			Map<Character, Integer> shiftMapFromLast) {
 
-		int numOfShift = 0;
-		int misMatchFromFirst = 0;
-		int indexFromFirst = strIndex - ( patternChar.length - 1 );
-		int numOfLoop = 0;
+		int matchedIndex = 0;
+		int numOfMisMatchedShift = 0;
+		int leftIndexOfPattern = strIndex - ( patternChar.length - 1 );
+		int patternIndexFromFirst = 0;
 		int patternIndex = patternChar.length - 1;
 
 		while ( patternIndex >= 0 ) {
 
-			if ( strChar[strIndex] != patternChar[patternIndex] ) {
-				if ( shiftMapFromLast.get( Character.valueOf( strChar[strIndex] ) ) == null ) {
-					return patternChar.length;
-				}
-				else {
-					return shiftMapFromLast.get( Character.valueOf( strChar[strIndex] ) );
-				}
-
+			// first character mismatch
+			if ( ( patternIndex == patternChar.length - 1 ) && ( strChar[strIndex] != patternChar[patternIndex] ) ) {
+				return getPreComputedShift( shiftMapFromLast, strChar[strIndex], patternChar.length );
 			}
-			else {
-				if ( strChar[indexFromFirst++] == patternChar[patternIndex] ) {
-					misMatchFromFirst++;
-				}
-				else {
 
-					numOfShift += misMatchFromFirst;
-					if ( shiftMapFromLast.get( Character.valueOf( strChar[strIndex] ) ) == null ) {
-						numOfShift += patternChar.length;
+			// character from the last is matched
+			if ( strChar[strIndex] != patternChar[patternIndex] ) {
+
+				// character from the last is mismatched.
+				// TODO precompute this shift as delta2.
+				matchedIndex = strIndex + 1;
+				while ( ( matchedIndex < strChar.length ) && ( patternIndexFromFirst < patternChar.length ) ) {
+					if ( strChar[matchedIndex] == patternChar[patternIndexFromFirst] ) {
+						numOfMisMatchedShift = matchedIndex - ( leftIndexOfPattern + patternIndexFromFirst );
 					}
 					else {
-						numOfShift += shiftMapFromLast.get( Character.valueOf( strChar[strIndex] ) );
+						break;
 					}
+
+					matchedIndex++;
+					patternIndexFromFirst++;
 				}
-			}
-			
-			if ( numOfLoop == ( patternChar.length - 1 ) ) {
-				return 0;
+
+				return numOfMisMatchedShift == 0 ? getPreComputedShift( shiftMapFromLast, strChar[strIndex],
+						patternChar.length ) : numOfMisMatchedShift;
 			}
 
-			patternIndex--;
 			strIndex--;
-			numOfLoop++;
+			patternIndex--;
 		}
 
-		return numOfShift;
+		return 0;
+	}
+
+	/**
+	 * 
+	 * Gets the precomputed corresponding shift from the end of pattern.
+	 * 
+	 * @param shiftMapFromLast
+	 *            Map holding the precomputed corresponding shift.
+	 * @param targetChar
+	 *            Used to search the shift as key.
+	 * @param patternLength
+	 *            Length of pattern.
+	 * @return Corresponding shift.
+	 */
+	private static int getPreComputedShift(Map<Character, Integer> shiftMapFromLast, char targetChar, int patternLength) {
+
+		if ( shiftMapFromLast.get( Character.valueOf( targetChar ) ) == null ) {
+
+			return patternLength;
+		}
+
+		return shiftMapFromLast.get( Character.valueOf( targetChar ) );
 	}
 }

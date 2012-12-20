@@ -10,6 +10,9 @@ import java.util.Map.Entry;
 import org.junit.Before;
 import org.junit.Test;
 
+import sfs.header.http.ending.Ending;
+import sfs.verb.http.Verb;
+
 public class StringUtilTest {
 
 	@Test
@@ -91,6 +94,16 @@ public class StringUtilTest {
 		pattern = "pll";
 		index = StringUtil.searchFirstIndexOfByMB( str, pattern );
 		assertTrue( "expecting index==-1 but found " + index, index == -1 );
+
+		str = "abc" + Ending.CRLF + Ending.CRLF;
+		pattern = Ending.CRLF.toString() + Ending.CRLF.toString();
+		index = StringUtil.searchFirstIndexOfByMB( str, pattern );
+		assertTrue( "expecting index == " + 3 + " but found " + index, index == 3 );
+		
+		str = "ab" + Ending.CRLF + "abc" + Ending.CRLF + Ending.CRLF;
+		pattern = Ending.CRLF.toString() + Ending.CRLF.toString();
+		index = StringUtil.searchFirstIndexOfByMB( str, pattern );
+		assertTrue( "expecting index == " + 7 + " but found " + index, index == 7 );
 	}
 
 	@Test
