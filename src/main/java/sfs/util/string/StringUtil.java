@@ -187,6 +187,31 @@ public class StringUtil {
 	}
 
 	/**
+	 * Searches the specified pattern within the specified string and returns the last index of the occurrence if and
+	 * only if the pattern is found,
+	 * false otherwise. This method implements The Boyer-Moore Fast String Searching Algorithm.
+	 * 
+	 * @param str
+	 *            String where the pattern is searched.
+	 * @param pattern
+	 *            To be searched within the string.
+	 * @param from
+	 *            Starting index.
+	 * @return The last index of the occurrence if the pattern is found, -1 otherwise.
+	 */
+	public static int searchLastIndexOfByMB(String str, String pattern, int from) {
+
+		if ( str.length() <= from ) {
+			throw new IllegalArgumentException( "invalid from, " + from + " index is specified for str, " + str );
+		}
+
+		Map<Character, Integer> shiftMapFromLast = calculateShift( pattern.toCharArray() );
+		int index = doSearchIndexOf( Arrays.copyOfRange( str.toCharArray(), from, str.length() ),
+				pattern.toCharArray(), shiftMapFromLast );
+		return index >= 0 ? ( from + index ) : -1;
+	}
+
+	/**
 	 * Calculates shifts from the right of the specified char array.
 	 * 
 	 * @param chars
