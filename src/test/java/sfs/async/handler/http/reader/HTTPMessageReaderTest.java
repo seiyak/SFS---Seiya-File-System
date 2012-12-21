@@ -82,12 +82,7 @@ public class HTTPMessageReaderTest {
 			entireMessage += greetings[i];
 			reader.findEndOfMessage( greetings[i], messageStat );
 		}
-
-		assertTrue( "expecting messageStat.getMessage().equals(entireMessage) but found entireMessage=="
-				+ entireMessage + " messageStat.getMessage()==" + messageStat.getMessage(),
-				entireMessage.equals( messageStat.getMessage() ) );
-		assertTrue( "expecting messageStat.getMessageBodyLength()==45 but found " + messageStat.getMessageBodyLength(),
-				messageStat.getMessageBodyLength() == 45 );
+		checkMessageStat(messageStat,entireMessage);
 
 		messageStat.clearStat();
 		greetings = null;
@@ -103,11 +98,30 @@ public class HTTPMessageReaderTest {
 			entireMessage += greetings[i];
 			reader.findEndOfMessage( greetings[i], messageStat );
 		}
-		assertTrue( "expecting messageStat.getMessageBodyLength()==45 but found " + messageStat.getMessageBodyLength(),
-				messageStat.getMessageBodyLength() == 45 );
+		checkMessageStat(messageStat,entireMessage);
+		
+		messageStat.clearStat();
+		greetings = null;
+		greetings = new String[] {
+				"HTTP/1.1 200 OK" + Ending.CRLF.toString() + "Content-type: application/json" + Ending.CRLF.toString()
+						+ "Content-le", "ngth: 45" + Ending.CRLF.toString() + "Date: Mon, Oct 22, 2012 08:15:",
+				"05 PM GMT" + Ending.CRLF.toString(),
+				"Greeting-back: true" + Ending.CRLF.toString() + Ending.CRLF.toString(),
+				"{\"status\": \"OK\",\"mes","sage\": \"Welcome to SFS!\"}" };
+		entireMessage = "";
+		for ( int i = 0; i < greetings.length; i++ ) {
+			entireMessage += greetings[i];
+			reader.findEndOfMessage( greetings[i], messageStat );
+		}
+		checkMessageStat(messageStat,entireMessage);
+	}
+
+	private void checkMessageStat(MessageStat messageStat, String entireMessage) {
 		assertTrue( "expecting messageStat.getMessage().equals(entireMessage) but found entireMessage=="
 				+ entireMessage + " messageStat.getMessage()==" + messageStat.getMessage(),
 				entireMessage.equals( messageStat.getMessage() ) );
+		assertTrue( "expecting messageStat.getMessageBodyLength()==45 but found " + messageStat.getMessageBodyLength(),
+				messageStat.getMessageBodyLength() == 45 );
 	}
 
 	@Test(expected = IllegalStateException.class)
