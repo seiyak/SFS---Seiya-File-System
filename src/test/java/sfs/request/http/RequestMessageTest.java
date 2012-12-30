@@ -37,4 +37,27 @@ public class RequestMessageTest {
 				requestMessage.getHeader().get(RequestHeaderEntry.ACCEPT).equals( "text/html" ) );
 	}
 
+	@Test
+	public void testClear() {
+
+		String request = Verb.GET + " / HTTP/1.1" + Ending.CRLF + "Host: www.google.com" + Ending.CRLF
+				+ "Accept: text/html";
+		requestMessage.extractMessage( request );
+		requestMessage.clear();
+
+		assertTrue( "expecting ver.equals('') but found " + requestMessage.getVerb(),
+				requestMessage.getVerb().equals( "" ) );
+		assertTrue( "expecting contextPath.equals('') but found " + requestMessage.getContextPath(), requestMessage
+				.getContextPath().equals( "" ) );
+		assertTrue( "expecting HttpVersion.equals('') but found " + requestMessage.getRequestHTTPVersion(),
+				requestMessage.getRequestHTTPVersion().equals( "" ) );
+		assertNull( "expecting getHeader().get( RequestHeaderEntry.HOST )== null but found " + requestMessage.getHeader().get( RequestHeaderEntry.HOST ),
+				requestMessage.getHeader().get( RequestHeaderEntry.HOST ) );
+		assertNull(
+				"expecting getHeader().get( RequestHeaderEntry.ACCEPT ) but found " + requestMessage.getHeader().get( RequestHeaderEntry.ACCEPT ),
+				requestMessage.getHeader().get( RequestHeaderEntry.ACCEPT ));
+		assertTrue( "expecting requestMessage.getHeader().isEmpty()==true but found "
+				+ requestMessage.getHeader().isEmpty(), requestMessage.getHeader().isEmpty() );
+	}
+
 }

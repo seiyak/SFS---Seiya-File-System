@@ -168,4 +168,16 @@ public class RequestMessage extends Request {
 		String[] each = headerStr.split( ": " );
 		header.put( (HeaderEntry) getRequestMessageMap().get( each[0] ), each[1] );
 	}
+
+	/**
+	 * Clears the header and contents on this message.
+	 */
+	public void clear() {
+
+		verb = "";
+		contextPath = "";
+		requestHTTPVersion = "";
+		content = "";
+		header.clear();
+	}
 }
