@@ -5,6 +5,7 @@ import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
 
+import sfs.header.http.RequestHeaderEntry;
 import sfs.header.http.ending.Ending;
 import sfs.verb.http.Verb;
 
@@ -30,10 +31,10 @@ public class RequestMessageTest {
 				.getContextPath().equals( "/" ) );
 		assertTrue( "expecting HttpVersion.equals('HTTP/1.1') but found " + requestMessage.getRequestHTTPVersion(),
 				requestMessage.getRequestHTTPVersion().equals( "HTTP/1.1" ) );
-		assertTrue( "expecting Host.equals('www.google.com') but found " + requestMessage.getHeader().get( 0 ).getValue(),
-				requestMessage.getHeader().get( 0 ).getValue().equals( "www.google.com" ) );
-		assertTrue( "expecting Accept.equals('text/html') but found " + requestMessage.getHeader().get( 1 ).getValue(),
-				requestMessage.getHeader().get( 1 ).getValue().equals( "text/html" ) );
+		assertTrue( "expecting Host.equals('www.google.com') but found " + requestMessage.getHeader().get( RequestHeaderEntry.HOST ),
+				requestMessage.getHeader().get( RequestHeaderEntry.HOST ).equals( "www.google.com" ) );
+		assertTrue( "expecting Accept.equals('text/html') but found " + requestMessage.getHeader().get( RequestHeaderEntry.ACCEPT ),
+				requestMessage.getHeader().get(RequestHeaderEntry.ACCEPT).equals( "text/html" ) );
 	}
 
 }

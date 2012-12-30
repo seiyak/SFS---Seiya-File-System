@@ -1,5 +1,6 @@
 package sfs.request.http;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -22,13 +23,13 @@ public class RequestMessage extends Request {
 	private String verb;
 	private String contextPath;
 	private String requestHTTPVersion;
-	private final List<HTTPHeaderEntry> header;
+	private final Map<HeaderEntry,String> header;
 	private String content;
 	private static final String HTTP_VERSION = "HTTP/1.1";
 
 	public RequestMessage(){
 		requestMessageMap = ReflectionUtil.getStaticMembers( RequestHeaderEntry.class, false );
-		header = new LinkedList<HTTPHeaderEntry>();
+		header = new HashMap<HeaderEntry,String>();
 	}
 
 	protected Map getRequestMessageMap() {
@@ -67,7 +68,7 @@ public class RequestMessage extends Request {
 		this.content = content;
 	}
 
-	public List<HTTPHeaderEntry> getHeader() {
+	public Map<HeaderEntry,String> getHeader() {
 		return header;
 	}
 	
@@ -161,22 +162,10 @@ public class RequestMessage extends Request {
 	 * 
 	 * @param headerStr
 	 *            String holds each header key and value.
-	 * @return Header key and value as HTTPHeaderEntry.
 	 */
-	private HTTPHeaderEntry extractHeader(String headerStr) {
+	private void extractHeader(String headerStr) {
 
-		HTTPHeaderEntry headerEntry = null;
 		String[] each = headerStr.split( ": " );
-
-		if ( each[0].equals( RequestHeaderEntry.ACCEPT.toString() ) ) {
-			headerEntry = new HTTPHeaderEntry( HeaderEntry.CONTENT_TYPE, each[1] );
-		}
-		else {
-			headerEntry = new HTTPHeaderEntry( (HeaderEntry) getRequestMessageMap().get( each[0] ), each[1] );
-		}
-
-		header.add( headerEntry );
-		return headerEntry;
+		header.put( (HeaderEntry) getRequestMessageMap().get( each[0] ), each[1] );
 	}
-
 }
