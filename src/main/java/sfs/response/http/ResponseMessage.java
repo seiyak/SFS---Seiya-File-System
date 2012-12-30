@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.apache.log4j.Logger;
 import org.json.JSONArray;
@@ -27,7 +28,7 @@ public class ResponseMessage extends Response {
 	private String responseHTTPVersion;
 	private String statusCode;
 	private String reasonPhrase;
-	private final List<HTTPHeaderEntry> header;
+	private final Map<HeaderEntry,String> header;
 	private String content;
 	private static Logger log = Logger.getLogger( ResponseMessage.class );
 	private static final String HTTP_VERSION = "HTTP/1.1";
@@ -38,7 +39,7 @@ public class ResponseMessage extends Response {
 	
 	public ResponseMessage(){
 		responseMessageMap = ReflectionUtil.getStaticMembers( ResponseHeaderEntry.class, false );
-		header = new LinkedList<HTTPHeaderEntry>();
+		header = new HashMap<HeaderEntry,String>();
 	}
 
 	protected Map getResponseMessageMap() {
@@ -52,8 +53,15 @@ public class ResponseMessage extends Response {
 				+ new WhiteSpace().getSeparator() + statusCode.getString() + Ending.CRLF;
 	}
 
-	public HTTPHeaderEntry[] getHeader() {
-		return header.toArray( new HTTPHeaderEntry[header.size()] );
+	public HTTPHeaderEntry[] getHeaderAsArray() {
+
+		HTTPHeaderEntry[] headerEntries = new HTTPHeaderEntry[header.size()];
+		int index = 0;
+		for ( Entry<HeaderEntry, String> entry : header.entrySet() ) {
+			headerEntries[index++] = new HTTPHeaderEntry( entry.getKey(), entry.getValue() );
+		}
+
+		return headerEntries;
 	}
 
 	public String getContent() {
@@ -127,16 +135,12 @@ public class ResponseMessage extends Response {
 	 * 
 	 * @param headerStr
 	 *            String holds each header key and value.
-	 * @return Header key and value as HTTPHeaderEntry.
 	 */
-	private HTTPHeaderEntry extractHeader(String headerStr) {
+	private void extractHeader(String headerStr) {
 
-		HTTPHeaderEntry headerEntry = null;
 		String[] each = headerStr.split( ": " );
 
-		headerEntry = new HTTPHeaderEntry( (HeaderEntry) getResponseMessageMap().get( each[0] ), each[1] );
-		header.add( headerEntry );
-		return headerEntry;
+		header.put( (HeaderEntry) getResponseMessageMap().get( each[0] ), each[1] );
 	}
 
 	public String getResponseHTTPVersion() {
@@ -260,16 +264,8 @@ public class ResponseMessage extends Response {
 	 * 
 	 * @return Map representation of HTTP header.
 	 */
-	public Map<String, Object> getHeaderAsMap() {
+	public Map<HeaderEntry, String> getHeader() {
 
-		Map<String, Object> map = new HashMap<String, Object>();
-		if ( header != null && !header.isEmpty() ) {
-
-			for ( HTTPHeaderEntry entry : header ) {
-				map.put( entry.getKey().toString(), entry.getValue() );
-			}
-		}
-
-		return map;
+		return header;
 	}
 }

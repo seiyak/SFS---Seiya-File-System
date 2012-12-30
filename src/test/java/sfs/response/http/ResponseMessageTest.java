@@ -37,7 +37,7 @@ public class ResponseMessageTest {
 		greeting += "{\"status\": \"OK\",\"message\": \"Welcome to SFS!\"}";
 		responseMessage.extractMessage( greeting );
 
-		HTTPHeaderEntry[] header = responseMessage.getHeader();
+		Map<HeaderEntry,String> header = responseMessage.getHeader();
 		checkEachHeader( new HTTPHeaderEntry[] { new HTTPHeaderEntry( HeaderEntry.CONTENT_TYPE, Mime.JSON ),
 				new HTTPHeaderEntry( HeaderEntry.CONTENT_LENGTH, 45 ),
 				new HTTPHeaderEntry( HeaderEntry.DATE, "Mon, Oct 22, 2012 08:15:05 PM GMT" ),
@@ -51,14 +51,14 @@ public class ResponseMessageTest {
 				responseMessage.get( "message" ).equals( "Welcome to SFS!" ) );
 	}
 
-	private void checkEachHeader(HTTPHeaderEntry[] expected, HTTPHeaderEntry[] res) {
+	private void checkEachHeader(HTTPHeaderEntry[] expected, Map<HeaderEntry,String> res) {
 
 		assertTrue( "expecting expected.length == res.length but found rexpected.length==" + expected.length
-				+ " res.length==" + res.length, expected.length == res.length );
-		for ( int i = 0; i < expected.length - 1; i++ ) {
-
+				+ " res.length==" + res.size(), expected.length == res.size() );
+		for ( int i = 0; i < expected.length; i++ ) {
+			
 			assertTrue( "expecting expected[" + i + "]==res[" + i + "] but found expected[" + i + "]==" + expected[i]
-					+ " res[" + i + "]==" + res[i], expected[i].toString().equals( res[i].toString() ) );
+					+ " res[" + i + "]==" + res.get( expected[i].getKey() ), expected[i].getValue().toString().equals(res.get( expected[i].getKey() )) );
 		}
 	}
 	
@@ -105,7 +105,7 @@ public class ResponseMessageTest {
 		greeting += "{\"status\": \"OK\",\"message\": \"Welcome to SFS!\"}";
 		responseMessage.extractMessage( greeting );
 		
-		Map<String,Object> headers = responseMessage.getHeaderAsMap();
+		Map<HeaderEntry,String> headers = responseMessage.getHeader();
 		assertTrue("expecting header.size()==4 but found " + headers.size(),headers.size() == 4);
 	}
 }
