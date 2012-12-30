@@ -57,7 +57,7 @@ public abstract class AbstractClient implements Clientable {
 	 * 
 	 * @return Map holding IP address in v4 and v6 formats.
 	 */
-	protected final Map<String, String> getLocalAddressMap() {
+	public final Map<String, String> getLocalAddressMap() {
 
 		return Collections.unmodifiableMap( localAddressMap );
 	}
@@ -88,7 +88,7 @@ public abstract class AbstractClient implements Clientable {
 	 *            Used to specify which HostEntry in hostEntries array needs to be accessed.
 	 * @return HostEntry object specified by the index.
 	 */
-	protected final HostEntry getHostEntry(int index) {
+	public final HostEntry getHostEntry(int index) {
 		return hostEntries[index];
 	}
 
@@ -480,7 +480,7 @@ public abstract class AbstractClient implements Clientable {
 						channel.register( getSelector(), SelectionKey.OP_READ );
 					}
 					else if ( readyKey.isReadable() ) {
-						log.debug( "readyKey is readable" );
+						//log.debug( "readyKey is readable" );
 
 						if ( channel == null ) {
 							log.warn( "channel is null, set up channel for read" );
@@ -488,7 +488,7 @@ public abstract class AbstractClient implements Clientable {
 						}
 
 						String res = read( channel );
-						log.debug( "got res: " + res );
+						//log.debug( "got res: " + res );
 
 						if ( res.isEmpty() ) {
 							log.warn( "reached the end of socket. about to close the channel" );
@@ -499,7 +499,7 @@ public abstract class AbstractClient implements Clientable {
 							request.extractMessage( res );
 							if ( request.getContextPath().equals( "/liveness" ) ) {
 								String content = new StatusOK().add( new LivenessTrue() ).add( new Date() ).getJson();
-								log.debug( "about to response with: " + content + " ..." );
+								//log.debug( "about to response with: " + content + " ..." );
 								write( channel,
 										new ResponseMessage().createMessage( StatusCode._200,
 												HeaderUtil.getResponseLivenessHeader( content.length() ), content ) );
@@ -510,7 +510,7 @@ public abstract class AbstractClient implements Clientable {
 							}
 						}
 						else if ( isMessageResponse( res ) ) {
-							if ( response.extractMessage( res ).getHeaderAsMap().get( ResponseHeaderEntry.GREETING_BACK.toString()) != null ) {
+							if ( response.extractMessage( res ).getHeader().get( ResponseHeaderEntry.GREETING_BACK ) != null ) {
 								log.debug( "found response for greeting" );
 								initializeConnection( internalServerThread, internalServer, response );
 							}
@@ -523,7 +523,6 @@ public abstract class AbstractClient implements Clientable {
 			}
 		}
 		catch ( Exception ex ) {
-			log.error( ex );
 			throw ex;
 		}
 	}
