@@ -168,4 +168,21 @@ public class StringUtilTest {
 
 		index = StringUtil.searchLastIndexOfByMB( str, pattern, str.length() + 10 );
 	}
+
+	@Test
+	public void testStartsWith() {
+		String pattern = "example";
+		String str = "here is a simple example";
+
+		int index = StringUtil.startsWith( str, pattern );
+		assertTrue( "expecting index==-1 but found, " + index, index == -1 );
+
+		pattern = "here";
+		index = StringUtil.startsWith( str, pattern );
+		assertTrue( "expecting index==3 but found, " + index, index == 3 );
+
+		pattern = "here is another simple example";
+		index = StringUtil.startsWith( str, pattern );
+		assertTrue( "exepcting index==-1 but found, " + index, index == -1 );
+	}
 }

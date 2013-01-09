@@ -212,6 +212,29 @@ public class StringUtil {
 	}
 
 	/**
+	 * Searches the specified pattern to see the parameter, str starts with that.
+	 * 
+	 * @param str
+	 *            Search is taken place.
+	 * @param pattern
+	 *            Used to check if the str starts with.
+	 * @return The index, N - 1 which is the length of pattern if the str starts with the pattern, -1 otherwise.
+	 */
+	public static int startsWith(String str, String pattern) {
+
+		if ( str.length() < pattern.length() ) {
+			return -1;
+		}
+
+		Map<Character, Integer> shiftMapFromLast = calculateShift( pattern.toCharArray() );
+
+		int index = doSearchIndexOf( str.substring( 0, pattern.length() ).toCharArray(), pattern.toCharArray(),
+				shiftMapFromLast );
+
+		return index < str.length() ? index : -1;
+	}
+
+	/**
 	 * Calculates shifts from the right of the specified char array.
 	 * 
 	 * @param chars
