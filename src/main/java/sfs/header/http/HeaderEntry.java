@@ -7,6 +7,8 @@ public class HeaderEntry {
 	public static final HeaderEntry CONTENT_TYPE = new HeaderEntry( "Content-type" );
 	public static final HeaderEntry DATE = new HeaderEntry( "Date" );
 	public static final HeaderEntry TRANSFER_ENCODING = new HeaderEntry( "Transfer-Encoding" );
+	public static final HeaderEntry CACHE_CONTROL = new HeaderEntry( "Cache-Control" );
+	public static final HeaderEntry CONNECTION = new HeaderEntry( "Connection" );
 
 	public HeaderEntry(String entry) {
 		this.entry = entry;
