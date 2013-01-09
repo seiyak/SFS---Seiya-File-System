@@ -1,5 +1,9 @@
 package sfs.mime;
 
+import java.util.Map;
+
+import sfs.util.reflection.ReflectionUtil;
+
 public class Mime {
 
 	private final String type;
@@ -7,6 +11,7 @@ public class Mime {
 	public static final Mime HTML = new Mime( "text/html" );
 	public static final Mime ANY = new Mime( "*/*" );
 	public static final Mime TEXT = new Mime( "text/plain" );
+	public static final Map MIMES = ReflectionUtil.getStaticMembers( Mime.class, false );
 
 	public Mime(String type) {
 		this.type = type;
