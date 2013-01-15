@@ -11,7 +11,12 @@ public class Mime {
 	public static final Mime HTML = new Mime( "text/html" );
 	public static final Mime ANY = new Mime( "*/*" );
 	public static final Mime TEXT = new Mime( "text/plain" );
-	public static final Map MIMES = ReflectionUtil.getStaticMembers( Mime.class, false );
+	public static final Mime NULL = new Mime("null");
+	public static Map MIMES;
+
+	static{
+		MIMES = ReflectionUtil.getStaticMembers( Mime.class, false );
+	}
 
 	public Mime(String type) {
 		this.type = type;
