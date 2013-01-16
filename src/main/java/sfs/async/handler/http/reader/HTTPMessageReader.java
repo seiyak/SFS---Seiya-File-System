@@ -4,27 +4,46 @@ import java.util.Arrays;
 
 import sfs.header.http.HeaderEntry;
 import sfs.header.http.ending.Ending;
+import sfs.header.http.separator.Colon;
+import sfs.header.http.separator.SemiColon;
+import sfs.mime.Mime;
+import sfs.request.http.RequestMessage;
+import sfs.stat.message.ContentDisposition;
+import sfs.stat.message.DataType;
 import sfs.stat.message.MessageStat;
 import sfs.util.string.StringUtil;
 
 public class HTTPMessageReader extends AbstractHTTPReader {
-
+	
+	private final RequestMessage requestMessage;
 	private final String TRANSFER_ENCODING_HEADER_KEY = HeaderEntry.TRANSFER_ENCODING.toString() + ": chunked"
 			+ Ending.CRLF;
 	private final String CONTENT_LENGTH_HEADER_KEY = HeaderEntry.CONTENT_LENGTH.toString() + ": ";
+	private final String BOUNDARY_KEY = "boundary=";
+	private final String CONTENT_DISPOSITION_KEY = "Content-Disposition: ";
+	private final String NAME_KEY = "name=";
+	private final String FILENAME_KEY = "filename=";
+	private final String FORM_DATA_KEY = "form-data;";
+	private final String ATTACHMENT_KEY = "attachment;";
 
 	public HTTPMessageReader() {
 		super();
+		requestMessage = new RequestMessage();
 	}
 
 	public HTTPMessageReader(int bufferCapacity) {
 		super( bufferCapacity );
+		requestMessage = new RequestMessage();
 	}
 
 	@Override
 	public boolean findEndOfMessage(String message, MessageStat messageStat) {
 
 		if ( messageStat.isHeaderHasBeenSet() ) {
+
+			// sets request header to messageStat.
+			messageStat.checkAndSetHeaderAndBoundary( BOUNDARY_KEY, requestMessage );
+
 			if ( messageStat.getMessageBodyType().equals( HeaderEntry.CONTENT_LENGTH.toString() ) ) {
 
 				// TODO should read by string or one by one as char ?
@@ -41,10 +60,13 @@ public class HTTPMessageReader extends AbstractHTTPReader {
 
 				if ( messageStat.getMessageBodyLength() == 0 ) {
 					messageStat.setMessageBodyLength( messageStat.getLength() - messageStat.getMessageBodyStartIndex() );
+					messageStat.checkAndSetHeader( requestMessage );
 					messageStat.setEndOfMessage( true );
 
 					return true;
 				}
+
+				checkAndSetContentDisposition( messageStat );
 
 				return false;
 			}
@@ -91,6 +113,7 @@ public class HTTPMessageReader extends AbstractHTTPReader {
 
 			if ( messageStat.getMessageBodyLength() == 0 ) {
 				messageStat.setMessageBodyLength( messageStat.getLength() - messageStat.getMessageBodyStartIndex() );
+				checkAndSetContentDisposition( messageStat );
 				messageStat.setEndOfMessage( true );
 
 				return true;
@@ -102,5 +125,112 @@ public class HTTPMessageReader extends AbstractHTTPReader {
 		}
 
 		return false;
+	}
+
+	/**
+	 * Checks and sets ContentDisposition to the specified MessageStat.
+	 * 
+	 * @param messageStat
+	 *            Used to check and set ContentDiposition.
+	 */
+	private void checkAndSetContentDisposition(MessageStat messageStat) {
+
+		// sets request header to messageStat.
+		messageStat.checkAndSetHeaderAndBoundary( BOUNDARY_KEY, requestMessage );
+
+		if ( !messageStat.isFileUploadable() ) {
+			return;
+		}
+
+		// checks content-disposition key
+		if ( !messageStat.isContentDispositionHasBeenSet() ) {
+			messageStat.setCurrentContentDispositionIndex( StringUtil.searchLastIndexOfByMB( messageStat.getMessage(),
+					messageStat.getBoundary() + Ending.CRLF + CONTENT_DISPOSITION_KEY,
+					messageStat.getMessageBodyStartIndex() ) );
+		}
+		else {
+			messageStat.setCurrentContentDispositionIndex( StringUtil.searchLastIndexOfByMB( messageStat.getMessage(),
+					messageStat.getBoundary() + Ending.CRLF + CONTENT_DISPOSITION_KEY,
+					messageStat.getCurrentContentDispositionIndex() ) );
+		}
+
+		// found content-disposition key
+		if ( messageStat.getCurrentContentDispositionIndex() != -1 && !messageStat.isContentDispositionSet() ) {
+
+			// set the index for content-disposition key content
+			messageStat.setCurrentContentStartIndex( StringUtil.searchFirstIndexOfByMB( messageStat.getMessage(),
+					Ending.CRLF.toString(), messageStat.getCurrentContentDispositionIndex() + 1 ) + 2 );
+
+			if ( messageStat.getCurrentContentStartIndex() != -1 ) {
+
+				ContentDisposition added = getContentDispositionKey(
+						messageStat,
+						messageStat.getMessage().substring( messageStat.getCurrentContentDispositionIndex() + 1,
+								messageStat.getCurrentContentStartIndex() - 2 ) );
+
+				// set the index for content-disposition content
+				messageStat.setCurrentContentDispositionIndex( StringUtil.searchFirstIndexOfByMB(
+						messageStat.getMessage(), Ending.CRLF.toString(), messageStat.getCurrentContentStartIndex() ) );
+
+				// set the content from form value.
+				if ( messageStat.getCurrentContentDispositionIndex() != -1 ) {
+					added.setFieldValue( messageStat.getMessage().substring( messageStat.getCurrentContentStartIndex(),
+							messageStat.getCurrentContentDispositionIndex() ) );
+					messageStat.addContentDisposition( added );
+
+					// reached the end of message
+					if ( messageStat.isEndOfMessage( messageStat.getCurrentContentDispositionIndex(), 2 ) ) {
+						messageStat.setContentDispositionSet( true );
+					}
+					else {
+						checkAndSetContentDisposition( messageStat );
+					}
+				}
+			}
+		}
+	}
+
+	/**
+	 * Gets ContentDisposition object out of the parameter, str.
+	 * 
+	 * @param messageStat
+	 *            Used to store extracted ContentDisposition.
+	 * @param str
+	 *            Extraction of ContetnDisposition is taken place.
+	 * @return Newly created ContentDisposition object.
+	 */
+	private ContentDisposition getContentDispositionKey(MessageStat messageStat, String str) {
+
+		ContentDisposition contentDisposition = new ContentDisposition();
+		String[] each = str.split( " " );
+		int index = -1;
+		for ( int i = 0; i < each.length; i++ ) {
+			if ( i == 0 ) {
+				if ( StringUtil.startsWith( each[0], FORM_DATA_KEY ) > 0 ) {
+					contentDisposition.setDataType( DataType.FORM_DATA );
+				}
+				else if ( StringUtil.startsWith( each[0], ATTACHMENT_KEY ) > 0 ) {
+					contentDisposition.setDataType( DataType.ATTACHMENT );
+				}
+			}
+
+			if ( ( index = StringUtil.startsWith( each[i], NAME_KEY ) ) > 0 ) {
+				if ( each[i].toCharArray()[each[i].length() - 1] == SemiColon.SEMI_COLON ) {
+					contentDisposition.setFieldName( each[i].substring( index + 1, each[i].length() - 1 ) );
+				}
+				else {
+					contentDisposition.setFieldName( each[i].substring( index + 1 ) );
+				}
+			}
+			else if ( ( index = StringUtil.startsWith( each[i], FILENAME_KEY ) ) > 0 ) {
+				contentDisposition.setFileName( each[i].substring( index + 1 ) );
+			}
+			else if ( ( index = StringUtil.startsWith( each[i], HeaderEntry.CONTENT_TYPE.toString() + Colon.COLON ) ) > 0 ) {
+				contentDisposition.setContentType( (Mime) Mime.MIMES.get( each[i + 1] ) );
+				break;
+			}
+		}
+
+		return contentDisposition;
 	}
 }

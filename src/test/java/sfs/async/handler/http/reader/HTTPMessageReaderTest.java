@@ -3,11 +3,17 @@ package sfs.async.handler.http.reader;
 import static org.junit.Assert.*;
 
 import java.io.IOException;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
 
 import sfs.header.http.ending.Ending;
+import sfs.mime.Mime;
+import sfs.stat.message.ContentDisposition;
+import sfs.stat.message.DataType;
 import sfs.stat.message.MessageStat;
 import sfs.verb.http.Verb;
 
@@ -73,7 +79,7 @@ public class HTTPMessageReaderTest {
 
 		MessageStat messageStat = new MessageStat();
 		String[] greetings = new String[] {
-				"HTTP/1.1 200 OK" + Ending.CRLF.toString() + "Content-type: application/json" + Ending.CRLF.toString()
+				Verb.GET + " / HTTP/1.1" + Ending.CRLF + "Host: www.google.com" + Ending.CRLF.toString() + "Content-type: application/json" + Ending.CRLF.toString()
 						+ "Content-le", "ngth: 45" + Ending.CRLF.toString() + "Date: Mon, Oct 22, 2012 08:15:",
 				"05 PM GMT" + Ending.CRLF.toString(), "Greeting-back: true" + Ending.CRLF.toString(),
 				Ending.CRLF.toString() + "{\"status\": \"OK\",\"message\": \"Welcome to SFS!\"}" };
@@ -82,12 +88,12 @@ public class HTTPMessageReaderTest {
 			entireMessage += greetings[i];
 			reader.findEndOfMessage( greetings[i], messageStat );
 		}
-		checkMessageStat(messageStat,entireMessage);
+		checkMessageStat( messageStat, 45, entireMessage );
 
 		messageStat.clearStat();
 		greetings = null;
 		greetings = new String[] {
-				"HTTP/1.1 200 OK" + Ending.CRLF.toString() + "Content-type: application/json" + Ending.CRLF.toString()
+				Verb.GET + " / HTTP/1.1" + Ending.CRLF + "Host: www.google.com" + Ending.CRLF + "Content-type: application/json" + Ending.CRLF.toString()
 						+ "Content-le", "ngth: 45" + Ending.CRLF.toString() + "Date: Mon, Oct 22, 2012 08:15:",
 				"05 PM GMT" + Ending.CRLF.toString(),
 				"Greeting-back: true" + Ending.CRLF.toString() + Ending.CRLF.toString(),
@@ -98,30 +104,164 @@ public class HTTPMessageReaderTest {
 			entireMessage += greetings[i];
 			reader.findEndOfMessage( greetings[i], messageStat );
 		}
-		checkMessageStat(messageStat,entireMessage);
-		
+		checkMessageStat( messageStat, 45, entireMessage );
+
 		messageStat.clearStat();
 		greetings = null;
 		greetings = new String[] {
-				"HTTP/1.1 200 OK" + Ending.CRLF.toString() + "Content-type: application/json" + Ending.CRLF.toString()
+				Verb.GET + " / HTTP/1.1" + Ending.CRLF + "Host: www.google.com" + Ending.CRLF + "Content-type: application/json" + Ending.CRLF.toString()
 						+ "Content-le", "ngth: 45" + Ending.CRLF.toString() + "Date: Mon, Oct 22, 2012 08:15:",
 				"05 PM GMT" + Ending.CRLF.toString(),
-				"Greeting-back: true" + Ending.CRLF.toString() + Ending.CRLF.toString(),
-				"{\"status\": \"OK\",\"mes","sage\": \"Welcome to SFS!\"}" };
+				"Greeting-back: true" + Ending.CRLF.toString() + Ending.CRLF.toString(), "{\"status\": \"OK\",\"mes",
+				"sage\": \"Welcome to SFS!\"}" };
 		entireMessage = "";
 		for ( int i = 0; i < greetings.length; i++ ) {
 			entireMessage += greetings[i];
 			reader.findEndOfMessage( greetings[i], messageStat );
 		}
-		checkMessageStat(messageStat,entireMessage);
+		checkMessageStat( messageStat, 45, entireMessage );
+
+		messageStat.clearStat();
 	}
 
-	private void checkMessageStat(MessageStat messageStat, String entireMessage) {
+	@Test
+	public void testFindEndOfMessageWithData1() {
+		String boundary = "BOUNDARY";
+		List<ContentDisposition> contentDispositions = new LinkedList<ContentDisposition>();
+		String multiForm = generateMultipartForm( boundary, contentDispositions );
+
+		String[] greetings = new String[] {
+				Verb.GET + " / HTTP/1.1" + Ending.CRLF + "Host: www.google.com" + Ending.CRLF
+						+ "Accept: image/gif, image/jpeg,*/*" + Ending.CRLF + "Accept-Language: en-us" + Ending.CRLF
+						+ "Content-type: multipart/form-data; boundary=" + boundary + Ending.CRLF + "Content-length: "
+						+ multiForm.length(), Ending.CRLF.toString() + Ending.CRLF.toString() + multiForm };
+
+		checkMessageStat( greetings, multiForm, contentDispositions );
+
+		contentDispositions.clear();
+		boundary = "BBBB";
+		greetings = null;
+		multiForm = generateMultipartForm( boundary, contentDispositions );
+		greetings = new String[] {
+				Verb.GET + " / HTTP/1.1" + Ending.CRLF + "Host: www.google.com" + Ending.CRLF
+						+ "Accept: image/gif, image/jpeg,*/*" + Ending.CRLF + "Accept-Language: en-us" + Ending.CRLF
+						+ "Content-type: multipart/form-data; boundary=" + boundary + Ending.CRLF + "Content-length: "
+						+ multiForm.length() + Ending.CRLF.toString(), Ending.CRLF.toString() + multiForm };
+		checkMessageStat( greetings, multiForm, contentDispositions );
+	
+		contentDispositions.clear();
+		boundary = "AAAA";
+		greetings = null;
+		multiForm = generateMultipartForm( boundary, contentDispositions );
+		greetings = new String[] {
+				Verb.GET + " / HTTP/1.1" + Ending.CRLF + "Host: www.google.com" + Ending.CRLF
+				+ "Accept: image/gif, image/jpeg,*/*" + Ending.CRLF + "Accept-Language: en-us" + Ending.CRLF
+				+ "Content-type: multipart/" , "form-data; boundary=" + boundary + Ending.CRLF + "Content-length: "
+				+ multiForm.length() + Ending.CRLF.toString(), Ending.CRLF.toString() + multiForm };
+		checkMessageStat( greetings, multiForm, contentDispositions );
+		
+		contentDispositions.clear();
+		boundary = "CCCC";
+		greetings = null;
+		multiForm = generateMultipartForm( boundary, contentDispositions );
+		greetings = new String[] {
+				Verb.GET + " / HTTP/1.1" + Ending.CRLF + "Host: www.google.com" + Ending.CRLF
+				+ "Accept: image/gif, image/jpeg,*/*" + Ending.CRLF + "Accept-Language: en-us" + Ending.CRLF
+				+ "Content","-type: multipart/" , "form-data; boun","dary=" + boundary, Ending.CRLF + "Content-length: "
+				+ multiForm.length() + Ending.CRLF.toString(), Ending.CRLF.toString() + multiForm };
+		checkMessageStat( greetings, multiForm, contentDispositions );
+		
+		contentDispositions.clear();
+		boundary = "DDD";
+		greetings = null;
+		multiForm = generateMultipartForm2(boundary,contentDispositions);
+		greetings = new String[] {
+				Verb.GET + " / HTTP/1.1" + Ending.CRLF + "Host: www.google.com" + Ending.CRLF
+				+ "Accept: image/gif, image/jpeg,*/*" + Ending.CRLF + "Accept-Language: en-us" + Ending.CRLF
+				+ "Content","-type: multipart/" , "form-data; boun","dary=" + boundary, Ending.CRLF + "Content-length: "
+				+ multiForm.length() + Ending.CRLF.toString(), Ending.CRLF.toString() + multiForm };
+		checkMessageStat( greetings, multiForm, contentDispositions );
+	}
+
+	private void checkMessageStat(String[] greetings, String multiForm, List<ContentDisposition> contentDispositions) {
+		String entireMessage = "";
+		MessageStat messageStat = new MessageStat();
+
+		for ( int i = 0; i < greetings.length; i++ ) {
+			entireMessage += greetings[i];
+			reader.findEndOfMessage( greetings[i], messageStat );
+		}
+		checkMessageStat( messageStat, multiForm.length(), entireMessage );
+		checkContentDispositions( messageStat, contentDispositions );
+	}
+
+	private String generateMultipartForm(String boundary, List<ContentDisposition> contentDispositions) {
+
+		String form = "--"
+				+ boundary + Ending.CRLF
+				+ "Content-Disposition: form-data; name=\"username\""
+				+ Ending.CRLF
+				+ "userName1"
+				+ Ending.CRLF
+				+ "--"
+				+ boundary + Ending.CRLF
+				+ "Content-Disposition: form-data; name=\"fileName\"; filename=\"/home/seiyak/sampleFile\" Content-type: text/plain"
+				+ Ending.CRLF + "Here goes the content of the uploaded file." + Ending.CRLF + "--" + boundary + "--"
+				+ Ending.CRLF;
+
+		contentDispositions.add( new ContentDisposition( DataType.FORM_DATA, "\"username\"", "",Mime.NULL, "userName1" ) );
+		contentDispositions.add( new ContentDisposition( DataType.FORM_DATA, "\"fileName\"", "\"/home/seiyak/sampleFile\"",
+				Mime.TEXT, "Here goes the content of the uploaded file." ) );
+
+		return form;
+	}
+
+	private String generateMultipartForm2(String boundary, List<ContentDisposition> contentDispositions) {
+
+		String form = "--"
+				+ boundary + Ending.CRLF
+				+ "Content-Disposition: form-data; name=\"password\""
+				+ Ending.CRLF
+				+ "123"
+				+ Ending.CRLF
+				+ "--"
+				+ boundary + Ending.CRLF
+				+ "Content-Disposition: form-data; name=\"FileName\"; filename=\"/home/seiyak/anotherSampleFile\" Content-type: image/jpeg"
+				+ Ending.CRLF + "image data is here" + Ending.CRLF + "--" + boundary + "--"
+				+ Ending.CRLF;
+
+		contentDispositions.add( new ContentDisposition( DataType.FORM_DATA, "\"password\"", "",Mime.NULL, "123" ) );
+		contentDispositions.add( new ContentDisposition( DataType.FORM_DATA, "\"FileName\"", "\"/home/seiyak/anotherSampleFile\"",
+				Mime.JPEG, "image data is here" ) );
+
+		return form;
+	}
+
+	private void checkContentDispositions(MessageStat messageStat, List<ContentDisposition> res) {
+
+		assertTrue(
+				"expecting messageStat.getSizeOfContentDispositions==res.size() but found messageStat.getSizeOfContentDispositions()=="
+						+ messageStat.getSizeOfContentDispositions() + " res.size()==" + res.size(),
+				messageStat.getSizeOfContentDispositions() == res.size() );
+		Iterator<ContentDisposition> itr = messageStat.getIteratorForContentDispositions();
+		Iterator<ContentDisposition> itr2 = res.iterator();
+
+		while ( itr2.hasNext() ) {
+
+			ContentDisposition c1 = itr.next();
+			ContentDisposition c2 = itr2.next();
+
+			assertTrue( "expecting c1.equals(c2)==ture but found false. c1: " + c1 + "\nc2: " + c2, c1.equals( c2 ) );
+		}
+	}
+
+	private void checkMessageStat(MessageStat messageStat, int length, String entireMessage) {
 		assertTrue( "expecting messageStat.getMessage().equals(entireMessage) but found entireMessage=="
 				+ entireMessage + " messageStat.getMessage()==" + messageStat.getMessage(),
 				entireMessage.equals( messageStat.getMessage() ) );
-		assertTrue( "expecting messageStat.getMessageBodyLength()==45 but found " + messageStat.getMessageBodyLength(),
-				messageStat.getMessageBodyLength() == 45 );
+		assertTrue(
+				"expecting messageStat.getMessageBodyLength()==" + length + " but found "
+						+ messageStat.getMessageBodyLength(), messageStat.getMessageBodyLength() == length );
 	}
 
 	@Test(expected = IllegalStateException.class)
