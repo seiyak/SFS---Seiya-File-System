@@ -12,6 +12,7 @@ public class Mime {
 	public static final Mime ANY = new Mime( "*/*" );
 	public static final Mime TEXT = new Mime( "text/plain" );
 	public static final Mime NULL = new Mime("null");
+	public static final Mime JPEG = new Mime( "image/jpeg" );
 	public static Map MIMES;
 
 	static{
