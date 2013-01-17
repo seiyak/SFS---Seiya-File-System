@@ -2,7 +2,15 @@ package sfs.async.handler.http.reader;
 
 import static org.junit.Assert.*;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -148,38 +156,53 @@ public class HTTPMessageReaderTest {
 						+ "Content-type: multipart/form-data; boundary=" + boundary + Ending.CRLF + "Content-length: "
 						+ multiForm.length() + Ending.CRLF.toString(), Ending.CRLF.toString() + multiForm };
 		checkMessageStat( greetings, multiForm, contentDispositions );
-	
+
 		contentDispositions.clear();
 		boundary = "AAAA";
 		greetings = null;
 		multiForm = generateMultipartForm( boundary, contentDispositions );
 		greetings = new String[] {
 				Verb.GET + " / HTTP/1.1" + Ending.CRLF + "Host: www.google.com" + Ending.CRLF
-				+ "Accept: image/gif, image/jpeg,*/*" + Ending.CRLF + "Accept-Language: en-us" + Ending.CRLF
-				+ "Content-type: multipart/" , "form-data; boundary=" + boundary + Ending.CRLF + "Content-length: "
-				+ multiForm.length() + Ending.CRLF.toString(), Ending.CRLF.toString() + multiForm };
+						+ "Accept: image/gif, image/jpeg,*/*" + Ending.CRLF + "Accept-Language: en-us" + Ending.CRLF
+						+ "Content-type: multipart/",
+				"form-data; boundary=" + boundary + Ending.CRLF + "Content-length: " + multiForm.length()
+						+ Ending.CRLF.toString(), Ending.CRLF.toString() + multiForm };
 		checkMessageStat( greetings, multiForm, contentDispositions );
-		
+
 		contentDispositions.clear();
 		boundary = "CCCC";
 		greetings = null;
 		multiForm = generateMultipartForm( boundary, contentDispositions );
 		greetings = new String[] {
 				Verb.GET + " / HTTP/1.1" + Ending.CRLF + "Host: www.google.com" + Ending.CRLF
-				+ "Accept: image/gif, image/jpeg,*/*" + Ending.CRLF + "Accept-Language: en-us" + Ending.CRLF
-				+ "Content","-type: multipart/" , "form-data; boun","dary=" + boundary, Ending.CRLF + "Content-length: "
-				+ multiForm.length() + Ending.CRLF.toString(), Ending.CRLF.toString() + multiForm };
+						+ "Accept: image/gif, image/jpeg,*/*" + Ending.CRLF + "Accept-Language: en-us" + Ending.CRLF
+						+ "Content", "-type: multipart/", "form-data; boun", "dary=" + boundary,
+				Ending.CRLF + "Content-length: " + multiForm.length() + Ending.CRLF.toString(),
+				Ending.CRLF.toString() + multiForm };
 		checkMessageStat( greetings, multiForm, contentDispositions );
-		
+
 		contentDispositions.clear();
 		boundary = "DDD";
 		greetings = null;
-		multiForm = generateMultipartForm2(boundary,contentDispositions);
+		multiForm = generateMultipartForm2( boundary, contentDispositions );
 		greetings = new String[] {
 				Verb.GET + " / HTTP/1.1" + Ending.CRLF + "Host: www.google.com" + Ending.CRLF
-				+ "Accept: image/gif, image/jpeg,*/*" + Ending.CRLF + "Accept-Language: en-us" + Ending.CRLF
-				+ "Content","-type: multipart/" , "form-data; boun","dary=" + boundary, Ending.CRLF + "Content-length: "
-				+ multiForm.length() + Ending.CRLF.toString(), Ending.CRLF.toString() + multiForm };
+						+ "Accept: image/gif, image/jpeg,*/*" + Ending.CRLF + "Accept-Language: en-us" + Ending.CRLF
+						+ "Content", "-type: multipart/", "form-data; boun", "dary=" + boundary,
+				Ending.CRLF + "Content-length: " + multiForm.length() + Ending.CRLF.toString(),
+				Ending.CRLF.toString() + multiForm };
+		checkMessageStat( greetings, multiForm, contentDispositions );
+
+		contentDispositions.clear();
+		boundary = "EEEEE";
+		greetings = null;
+		multiForm = generateMultiForm3( "SFS.html", boundary, contentDispositions );
+		greetings = new String[] {
+				Verb.GET + " / HTTP/1.1" + Ending.CRLF + "Host: www.google.com" + Ending.CRLF
+						+ "Accept: image/gif, image/jpeg,*/*" + Ending.CRLF + "Accept-Language: en-us" + Ending.CRLF
+						+ "Content", "-type: multipart/", "form-data; boun", "dary=" + boundary,
+				Ending.CRLF + "Content-length: " + multiForm.length() + Ending.CRLF.toString(),
+				Ending.CRLF.toString() + multiForm };
 		checkMessageStat( greetings, multiForm, contentDispositions );
 	}
 
@@ -198,20 +221,23 @@ public class HTTPMessageReaderTest {
 	private String generateMultipartForm(String boundary, List<ContentDisposition> contentDispositions) {
 
 		String form = "--"
-				+ boundary + Ending.CRLF
+				+ boundary
+				+ Ending.CRLF
 				+ "Content-Disposition: form-data; name=\"username\""
 				+ Ending.CRLF
 				+ "userName1"
 				+ Ending.CRLF
 				+ "--"
-				+ boundary + Ending.CRLF
+				+ boundary
+				+ Ending.CRLF
 				+ "Content-Disposition: form-data; name=\"fileName\"; filename=\"/home/seiyak/sampleFile\" Content-type: text/plain"
 				+ Ending.CRLF + "Here goes the content of the uploaded file." + Ending.CRLF + "--" + boundary + "--"
 				+ Ending.CRLF;
 
-		contentDispositions.add( new ContentDisposition( DataType.FORM_DATA, "\"username\"", "",Mime.NULL, "userName1" ) );
-		contentDispositions.add( new ContentDisposition( DataType.FORM_DATA, "\"fileName\"", "\"/home/seiyak/sampleFile\"",
-				Mime.TEXT, "Here goes the content of the uploaded file." ) );
+		contentDispositions
+				.add( new ContentDisposition( DataType.FORM_DATA, "\"username\"", "", Mime.NULL, "userName1" ) );
+		contentDispositions.add( new ContentDisposition( DataType.FORM_DATA, "\"fileName\"",
+				"\"/home/seiyak/sampleFile\"", Mime.TEXT, "Here goes the content of the uploaded file." ) );
 
 		return form;
 	}
@@ -219,22 +245,84 @@ public class HTTPMessageReaderTest {
 	private String generateMultipartForm2(String boundary, List<ContentDisposition> contentDispositions) {
 
 		String form = "--"
-				+ boundary + Ending.CRLF
+				+ boundary
+				+ Ending.CRLF
 				+ "Content-Disposition: form-data; name=\"password\""
 				+ Ending.CRLF
 				+ "123"
 				+ Ending.CRLF
 				+ "--"
-				+ boundary + Ending.CRLF
+				+ boundary
+				+ Ending.CRLF
 				+ "Content-Disposition: form-data; name=\"FileName\"; filename=\"/home/seiyak/anotherSampleFile\" Content-type: image/jpeg"
-				+ Ending.CRLF + "image data is here" + Ending.CRLF + "--" + boundary + "--"
-				+ Ending.CRLF;
+				+ Ending.CRLF + "image data is here" + Ending.CRLF + "--" + boundary + "--" + Ending.CRLF;
 
-		contentDispositions.add( new ContentDisposition( DataType.FORM_DATA, "\"password\"", "",Mime.NULL, "123" ) );
-		contentDispositions.add( new ContentDisposition( DataType.FORM_DATA, "\"FileName\"", "\"/home/seiyak/anotherSampleFile\"",
-				Mime.JPEG, "image data is here" ) );
+		contentDispositions.add( new ContentDisposition( DataType.FORM_DATA, "\"password\"", "", Mime.NULL, "123" ) );
+		contentDispositions.add( new ContentDisposition( DataType.FORM_DATA, "\"FileName\"",
+				"\"/home/seiyak/anotherSampleFile\"", Mime.JPEG, "image data is here" ) );
 
 		return form;
+	}
+
+	private String generateMultiForm3(String fileName, String boundary, List<ContentDisposition> contentDispositions) {
+
+		File file = null;
+		String content = "", fullPath = "";
+		try {
+			file = new File( getClass().getClassLoader().getResource( fileName ).toURI() );
+			content = getAsString( file );
+			fullPath = file.getCanonicalPath();
+		}
+		catch ( URISyntaxException e ) {
+			e.printStackTrace();
+		}
+		catch ( IOException e ) {
+			e.printStackTrace();
+		}
+		String form = "";
+
+		form = "--" + boundary + Ending.CRLF + "Content-Disposition: form-data; name=\"name\"" + Ending.CRLF
+				+ file.getName() + Ending.CRLF + "--" + boundary + Ending.CRLF
+				+ "Content-Disposition: form-data; name=\"FileName\"; filename=\"" + fullPath
+				+ "\" Content-type: text/html" + Ending.CRLF + content + Ending.CRLF + "--" + boundary + "--"
+				+ Ending.CRLF;
+
+		contentDispositions
+				.add( new ContentDisposition( DataType.FORM_DATA, "\"name\"", "", Mime.NULL, file.getName() ) );
+		contentDispositions.add( new ContentDisposition( DataType.FORM_DATA, "\"FileName\"", "\"" + fullPath + "\"",
+				Mime.HTML, content ) );
+
+		return form;
+	}
+
+	private String getAsString(File file) {
+
+		BufferedReader reader = null;
+		try {
+			reader = new BufferedReader( new FileReader( file ) );
+		}
+		catch ( FileNotFoundException e1 ) {
+			e1.printStackTrace();
+		}
+		String str = "", content = "";
+		try {
+			while ( ( str = reader.readLine() ) != null ) {
+				content += str;
+			}
+		}
+		catch ( IOException e ) {
+			e.printStackTrace();
+		}
+		finally {
+			try {
+				reader.close();
+			}
+			catch ( IOException e ) {
+				e.printStackTrace();
+			}
+		}
+
+		return content;
 	}
 
 	private void checkContentDispositions(MessageStat messageStat, List<ContentDisposition> res) {
