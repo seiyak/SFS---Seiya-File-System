@@ -204,6 +204,32 @@ public class HTTPMessageReaderTest {
 				Ending.CRLF + "Content-length: " + multiForm.length() + Ending.CRLF.toString(),
 				Ending.CRLF.toString() + multiForm };
 		checkMessageStat( greetings, multiForm, contentDispositions );
+
+		contentDispositions.clear();
+		boundary = "FFFF";
+		greetings = null;
+		multiForm = generateMultiForm3( "SFS.html", boundary, contentDispositions );
+		greetings = new String[] {
+				Verb.GET + " / HTTP/1.1" + Ending.CRLF + "Host: www.google.com" + Ending.CRLF
+						+ "Accept: image/gif, image/jpeg,*/*" + Ending.CRLF + "Accept-Language: en-us" + Ending.CRLF
+						+ "Content", "-type: multipart/", "form-data; boun", "dary=" + boundary,
+				Ending.CRLF + "Content-length: " + multiForm.length() + Ending.CRLF.toString(),
+				Ending.CRLF.toString() + multiForm.substring( 0, multiForm.length() / 2 ),
+				multiForm.substring( ( multiForm.length() / 2 ) ) };
+		checkMessageStat( greetings, multiForm, contentDispositions );
+
+		contentDispositions.clear();
+		boundary = "GGGG";
+		greetings = null;
+		multiForm = generateMultiForm3( "SFS.html", boundary, contentDispositions );
+		greetings = new String[] {
+				Verb.GET + " / HTTP/1.1" + Ending.CRLF + "Host: www.google.com" + Ending.CRLF
+						+ "Accept: image/gif, image/jpeg,*/*" + Ending.CRLF + "Accept-Language: en-us" + Ending.CRLF
+						+ "Content", "-type: multipart/", "form-data; boun", "dary=" + boundary,
+				Ending.CRLF + "Content-length: " + multiForm.length() + Ending.CRLF.toString(),
+				Ending.CRLF.toString() + multiForm.substring( 0, 10 ), multiForm.substring( 10, 20 ),
+				multiForm.substring( 20 ) };
+		checkMessageStat( greetings, multiForm, contentDispositions );
 	}
 
 	private void checkMessageStat(String[] greetings, String multiForm, List<ContentDisposition> contentDispositions) {
