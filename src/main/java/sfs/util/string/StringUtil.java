@@ -360,8 +360,8 @@ public class StringUtil {
 					patternIndexFromFirst++;
 				}
 
-				return numOfMisMatchedShift == 0 ? getPreComputedShift( shiftMapFromLast, strChar[strIndex],
-						patternChar.length ) : numOfMisMatchedShift;
+				return numOfMisMatchedShift == 0 ? patternChar.length - 1
+						: numOfMisMatchedShift;
 			}
 
 			strIndex--;

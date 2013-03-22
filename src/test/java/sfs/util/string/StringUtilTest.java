@@ -1,19 +1,26 @@
 package sfs.util.string;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.junit.Before;
 import org.junit.Test;
 
 import sfs.header.http.ending.Ending;
-import sfs.verb.http.Verb;
 
 public class StringUtilTest {
+
+	private static final String TEST_INPUT_FILE_NAME = "EnglishWords.txt";
 
 	@Test
 	public void testGetQueryAsMap() {
@@ -104,6 +111,12 @@ public class StringUtilTest {
 		pattern = Ending.CRLF.toString() + Ending.CRLF.toString();
 		index = StringUtil.searchFirstIndexOfByMB( str, pattern );
 		assertTrue( "expecting index == " + 7 + " but found " + index, index == 7 );
+
+		str = "AaronAOLAgathaDomino'sonAbelson'sZoomAgamemnon's";
+		pattern = "Agamemnon's";
+		index = StringUtil.searchFirstIndexOfByMB( str, pattern );
+		assertTrue( "expecting index == " + ( str.length() - pattern.length() ) + " but found " + index,
+				index == ( str.length() - pattern.length() ) );
 	}
 
 	@Test
@@ -184,5 +197,122 @@ public class StringUtilTest {
 		pattern = "here is another simple example";
 		index = StringUtil.startsWith( str, pattern );
 		assertTrue( "exepcting index==-1 but found, " + index, index == -1 );
+	}
+
+	@Test
+	public void testSearchFirstIndexOfByMBAgainstIndexOf() {
+
+		String str = readTestInputFile();
+		String pattern = "AOL";
+		int index1 = str.indexOf( pattern );
+		int index2 = StringUtil.searchFirstIndexOfByMB( str, pattern );
+		checkEachResult( str, index1, index2, pattern.length() );
+
+		pattern = "Aaron";
+		index1 = str.indexOf( pattern );
+		index2 = StringUtil.searchFirstIndexOfByMB( str, pattern );
+		checkEachResult( str, index1, index2, pattern.length() );
+
+		pattern = "Aden";
+		index1 = str.indexOf( pattern );
+		index2 = StringUtil.searchFirstIndexOfByMB( str, pattern );
+		checkEachResult( str, index1, index2, pattern.length() );
+
+		pattern = "Afros";
+		index1 = str.indexOf( pattern );
+		index2 = StringUtil.searchFirstIndexOfByMB( str, pattern );
+		checkEachResult( str, index1, index2, pattern.length() );
+
+		pattern = "Agamemnon's";
+		index1 = str.indexOf( pattern );
+		index2 = StringUtil.searchFirstIndexOfByMB( str, pattern );
+		checkEachResult( str, index1, index2, pattern.length() );
+
+		pattern = "Agassiz";
+		index1 = str.indexOf( pattern );
+		index2 = StringUtil.searchFirstIndexOfByMB( str, pattern );
+		checkEachResult( str, index1, index2, pattern.length() );
+
+		pattern = "Agatha";
+		index1 = str.indexOf( pattern );
+		index2 = StringUtil.searchFirstIndexOfByMB( str, pattern );
+		checkEachResult( str, index1, index2, pattern.length() );
+
+		pattern = "carpet's";
+		index1 = str.indexOf( pattern );
+		index2 = StringUtil.searchFirstIndexOfByMB( str, pattern );
+		checkEachResult( str, index1, index2, pattern.length() );
+
+		pattern = "larva's";
+		index1 = str.indexOf( pattern );
+		index2 = StringUtil.searchFirstIndexOfByMB( str, pattern );
+		checkEachResult( str, index1, index2, pattern.length() );
+
+		pattern = "risen";
+		index1 = str.indexOf( pattern );
+		index2 = StringUtil.searchFirstIndexOfByMB( str, pattern );
+		checkEachResult( str, index1, index2, pattern.length() );
+
+		pattern = "requisitioning";
+		index1 = str.indexOf( pattern );
+		index2 = StringUtil.searchFirstIndexOfByMB( str, pattern );
+		checkEachResult( str, index1, index2, pattern.length() );
+
+		pattern = "rerouting";
+		index1 = str.indexOf( pattern );
+		index2 = StringUtil.searchFirstIndexOfByMB( str, pattern );
+		checkEachResult( str, index1, index2, pattern.length() );
+
+		pattern = "zygotes";
+		index1 = str.indexOf( pattern );
+		index2 = StringUtil.searchFirstIndexOfByMB( str, pattern );
+		checkEachResult( str, index1, index2, pattern.length() );
+	}
+
+	private void checkEachResult(String str, int index1, int index2, int length) {
+
+		assertTrue( "expecting index1==index2 but found index1==" + index1 + ", index2==" + index2
+				+ " str[index1,index1+" + length + "]==" + str.substring( index1, index1 + length )
+				+ " str[index2,index2+" + length + "]==" + str.substring( index2, index2 + length ), index1 == index2 );
+		assertTrue(
+				"expecting str.substring(index1,index1+length).equals(str.substring(inde2,inde2+length) but found false",
+				str.substring( index1, index1 + length ).equals( str.substring( index2, index2 + length ) ) );
+	}
+
+	private String readTestInputFile() {
+
+		String str2 = "";
+		BufferedReader br = null;
+		try {
+			try {
+				br = new BufferedReader( new FileReader( new File( getClass().getClassLoader()
+						.getResource( TEST_INPUT_FILE_NAME ).toURI() ) ) );
+			}
+			catch ( URISyntaxException e1 ) {
+				e1.printStackTrace();
+			}
+			String str = "";
+			try {
+				while ( ( str = br.readLine() ) != null ) {
+					str2 += str;
+				}
+			}
+			catch ( IOException e ) {
+				e.printStackTrace();
+			}
+		}
+		catch ( FileNotFoundException e ) {
+			e.printStackTrace();
+		}
+		finally {
+			try {
+				br.close();
+			}
+			catch ( IOException e ) {
+				e.printStackTrace();
+			}
+		}
+
+		return str2;
 	}
 }
