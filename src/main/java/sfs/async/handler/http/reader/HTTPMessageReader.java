@@ -16,7 +16,9 @@ import sfs.util.string.StringUtil;
 public class HTTPMessageReader extends AbstractHTTPReader {
 	
 	private final RequestMessage requestMessage;
-	private final String TRANSFER_ENCODING_HEADER_KEY = HeaderEntry.TRANSFER_ENCODING.toString() + ": chunked"
+	private final String CHUNKED_KEY = "chunked";
+	private final String CHUNKED_END_KEY = Ending.CRLF + "0" + Ending.CRLF + Ending.CRLF;
+	private final String TRANSFER_ENCODING_HEADER_KEY = HeaderEntry.TRANSFER_ENCODING.toString() + ": " + CHUNKED_KEY
 			+ Ending.CRLF;
 	private final String CONTENT_LENGTH_HEADER_KEY = HeaderEntry.CONTENT_LENGTH.toString() + ": ";
 	private final String BOUNDARY_KEY = "boundary=";
@@ -58,7 +60,8 @@ public class HTTPMessageReader extends AbstractHTTPReader {
 					messageStat.setMessageBodyLength( messageStat.getMessageBodyLength() - 1 );
 				}
 
-				if ( messageStat.getMessageBodyLength() == 0 ) {
+				checkAndSetContentDisposition( messageStat );
+				if ( !messageStat.isContentDispositionSet() && messageStat.getMessageBodyLength() == 0 ) {
 					messageStat.setMessageBodyLength( messageStat.getLength() - messageStat.getMessageBodyStartIndex() );
 					messageStat.checkAndSetHeader( requestMessage );
 					messageStat.setEndOfMessage( true );
@@ -66,12 +69,12 @@ public class HTTPMessageReader extends AbstractHTTPReader {
 					return true;
 				}
 
-				checkAndSetContentDisposition( messageStat );
-
 				return false;
 			}
 			else if ( messageStat.getMessageBodyType().equals( "chunked" ) ) {
 				// TODO chunked type to read message body here.
+				
+				checkAndSetContentDisposition( messageStat );
 			}
 		}
 
@@ -121,7 +124,18 @@ public class HTTPMessageReader extends AbstractHTTPReader {
 		}
 
 		if ( chunkedHeaderIndex != -1 ) {
-			messageStat.setMessageBodyType( "chunked" );
+			messageStat.setMessageBodyType( CHUNKED_KEY );
+
+			// TODO can increase the starting point from messageStat.getMessageBodyStartIndex().
+			if ( StringUtil.searchFirstIndexOfByMB( messageStat.getMessage(), CHUNKED_END_KEY,
+					messageStat.getMessageBodyStartIndex() ) != -1 ) {
+
+				// found the end of chunked, \CR\LF0\CR\LF\CR\LF
+				checkAndSetContentDisposition( messageStat );
+				messageStat.setEndOfMessage( true );
+
+				return true;
+			}
 		}
 
 		return false;

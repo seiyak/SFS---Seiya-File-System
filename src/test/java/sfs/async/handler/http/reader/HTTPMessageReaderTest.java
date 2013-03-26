@@ -231,6 +231,21 @@ public class HTTPMessageReaderTest {
 				multiForm.substring( 20 ) };
 		checkMessageStat( greetings, multiForm, contentDispositions );
 	}
+	
+	@Test
+	public void testFindEndOfMessageWithData2() {
+
+		List<ContentDisposition> contentDispositions = new LinkedList<ContentDisposition>();
+		String boundary = "HHHH";
+		String multiForm = generateMultipartForm( boundary, contentDispositions );
+		String[] greetings = new String[] { Verb.GET + " / HTTP/1.1 " + Ending.CRLF + "Host: www.google.com"
+				+ Ending.CRLF + "Accept: image/gif" + Ending.CRLF + "Accept-Language: en-us" + Ending.CRLF
+				+ "Transfer-Encoding: chunked" + Ending.CRLF + "Content-type: multipart/form-data; boundary="
+				+ boundary + Ending.CRLF + Ending.CRLF + Integer.toHexString( multiForm.length() ) + Ending.CRLF
+				+ multiForm + 0 + Ending.CRLF + Ending.CRLF };
+		checkMessageStat( greetings, multiForm, contentDispositions );
+		
+	}
 
 	private void checkMessageStat(String[] greetings, String multiForm, List<ContentDisposition> contentDispositions) {
 		String entireMessage = "";
