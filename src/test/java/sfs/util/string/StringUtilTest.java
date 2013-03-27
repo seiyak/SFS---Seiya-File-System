@@ -117,6 +117,18 @@ public class StringUtilTest {
 		index = StringUtil.searchFirstIndexOfByMB( str, pattern );
 		assertTrue( "expecting index == " + ( str.length() - pattern.length() ) + " but found " + index,
 				index == ( str.length() - pattern.length() ) );
+		
+		str = "AaronAOLzoologist'sAgathaDomino'sonAbelson'sZoomAgamemnon's";
+		pattern = "zoologist's";
+		index = StringUtil.searchFirstIndexOfByMB( str, pattern );
+		assertTrue( "expecting index == " + 8 + " but found " + index,
+				index == 8 );
+		
+		str = "AaronAOLAgathaDomino'sonAbelson'sZoomAgamemnon'szoologist's";
+		pattern = "zoologist's";
+		index = StringUtil.searchFirstIndexOfByMB( str, pattern );
+		assertTrue( "expecting index == " + ( str.length() - pattern.length() ) + " but found " + index,
+				index == ( str.length() - pattern.length() ) );
 	}
 
 	@Test
@@ -267,6 +279,62 @@ public class StringUtilTest {
 		index1 = str.indexOf( pattern );
 		index2 = StringUtil.searchFirstIndexOfByMB( str, pattern );
 		checkEachResult( str, index1, index2, pattern.length() );
+
+		pattern = "zoologists";
+		index1 = str.indexOf( pattern );
+		index2 = StringUtil.searchFirstIndexOfByMB( str, pattern );
+		checkEachResult( str, index1, index2, pattern.length() );
+		
+		pattern = "zoologist's";
+		index1 = str.indexOf( pattern );
+		index2 = StringUtil.searchFirstIndexOfByMB( str, pattern );
+		checkEachResult( str, index1, index2, pattern.length() );
+		
+		pattern = "zoology's";
+		index1 = str.indexOf( pattern );
+		index2 = StringUtil.searchFirstIndexOfByMB( str, pattern );
+		checkEachResult( str, index1, index2, pattern.length() );
+		
+		pattern = "zwieback's";
+		index1 = str.indexOf( pattern );
+		index2 = StringUtil.searchFirstIndexOfByMB( str, pattern );
+		checkEachResult( str, index1, index2, pattern.length() );
+		
+		pattern = "zoology";
+		index1 = str.indexOf( pattern );
+		index2 = StringUtil.searchFirstIndexOfByMB( str, pattern );
+		checkEachResult( str, index1, index2, pattern.length() );
+		
+		pattern = "zinger";
+		index1 = str.indexOf( pattern );
+		index2 = StringUtil.searchFirstIndexOfByMB( str, pattern );
+		checkEachResult( str, index1, index2, pattern.length() );
+		
+		pattern = "zinger's";
+		index1 = str.indexOf( pattern );
+		index2 = StringUtil.searchFirstIndexOfByMB( str, pattern );
+		checkEachResult( str, index1, index2, pattern.length() );
+
+		pattern = "zingers";
+		index1 = str.indexOf( pattern );
+		index2 = StringUtil.searchFirstIndexOfByMB( str, pattern );
+		checkEachResult( str, index1, index2, pattern.length() );
+
+		pattern = "zinging";
+		index1 = str.indexOf( pattern );
+		index2 = StringUtil.searchFirstIndexOfByMB( str, pattern );
+		checkEachResult( str, index1, index2, pattern.length() );
+
+		pattern = "zings";
+		index1 = str.indexOf( pattern );
+		index2 = StringUtil.searchFirstIndexOfByMB( str, pattern );
+		checkEachResult( str, index1, index2, pattern.length() );
+
+		pattern = "zinnia";
+		index1 = str.indexOf( pattern );
+		index2 = StringUtil.searchFirstIndexOfByMB( str, pattern );
+		checkEachResult( str, index1, index2, pattern.length() );
+
 	}
 
 	private void checkEachResult(String str, int index1, int index2, int length) {
@@ -279,7 +347,7 @@ public class StringUtilTest {
 				str.substring( index1, index1 + length ).equals( str.substring( index2, index2 + length ) ) );
 	}
 
-	private String readTestInputFile() {
+	protected String readTestInputFile() {
 
 		String str2 = "";
 		BufferedReader br = null;
