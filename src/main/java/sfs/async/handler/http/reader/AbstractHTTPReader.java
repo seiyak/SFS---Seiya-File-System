@@ -129,6 +129,9 @@ public abstract class AbstractHTTPReader implements Reader {
 
 		if ( connectionMap.get( channel ) == null ) {
 			connectionMap.put( channel, new MessageStat() );
+		}else if(connectionMap.get( channel ).isEndOfMessage()){
+			log.warn( "the current message status is in read only mode. about to clear the current status" );
+			connectionMap.get( channel ).clearStat();
 		}
 
 		findEndOfMessage( str, connectionMap.get( channel ) );
