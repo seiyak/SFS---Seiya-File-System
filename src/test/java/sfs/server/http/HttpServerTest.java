@@ -1,13 +1,12 @@
 package sfs.server.http;
 
-import static org.junit.Assert.*;
-
 import java.io.IOException;
 
 import org.junit.Before;
 import org.junit.Test;
 
 import sfs.entry.HostEntry;
+import sfs.util.ipaddress.LocalIPAddress;
 
 public class HttpServerTest {
 
@@ -16,7 +15,7 @@ public class HttpServerTest {
 	@Before
 	public void setUp() throws Exception {
 
-		server = new InteractiveServer( new HostEntry( "192.168.0.103", 60625 ) );
+		server = new InteractiveServer( new HostEntry( LocalIPAddress.getLocalIPAddress().get( "v4" ), 60625 ) );
 	}
 
 	@Test
