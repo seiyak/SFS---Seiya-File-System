@@ -33,11 +33,24 @@ public class Server {
 		startPoll( key );
 	}
 
+	public Server(String host, int port, int bufferSize) throws IOException {
+		this.port = port;
+		socket = ServerSocketChannel.open();
+		socket.configureBlocking( false );
+		socket.socket().bind( new InetSocketAddress( host, port ) );
+		selector = Selector.open();
+		SelectionKey key = socket.register( selector, SelectionKey.OP_ACCEPT );
+		requestReader = new HTTPMessageReader( bufferSize );
+
+		startPoll( key );
+	}
+
 	private void startPoll(SelectionKey key) {
 
 		System.out.println( "about to poll on server" );
 		MessageStat messageStat = null;
-
+		ServerSocketChannel so = null;
+		SocketChannel sc = null;
 		while ( true ) {
 			try {
 				if ( key.selector().select() <= 0 ) {
@@ -61,16 +74,15 @@ public class Server {
 					}
 					else if ( ready.isValid() && ready.isAcceptable() ) {
 
-						ServerSocketChannel so = (ServerSocketChannel) key.channel();
+						so = (ServerSocketChannel) key.channel();
 
-						SocketChannel sc = so.accept();
+						sc = so.accept();
 						sc.configureBlocking( false );
 						sc.register( selector, SelectionKey.OP_READ | SelectionKey.OP_CONNECT );
 					}
 				}
 			}
 			catch ( IOException e ) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 			catch ( Exception ex ) {
@@ -81,5 +93,27 @@ public class Server {
 
 	public int getPort() {
 		return port;
+	}
+	
+	public void close(){
+		if(selector.isOpen()){
+			try {
+				selector.close();
+			}
+			catch ( IOException e ) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		
+		if(socket.isOpen()){
+			try {
+				socket.close();
+			}
+			catch ( IOException e ) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 	}
 }
