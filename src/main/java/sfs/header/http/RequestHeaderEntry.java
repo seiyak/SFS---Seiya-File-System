@@ -2,6 +2,9 @@ package sfs.header.http;
 
 public class RequestHeaderEntry extends HeaderEntry{
 
+	public static final RequestHeaderEntry REQUEST_HTTP_VERSION = new RequestHeaderEntry( "Http-Version" );
+	public static final RequestHeaderEntry CONTEXT_PATH = new RequestHeaderEntry( "Context-Path" );
+	public static final RequestHeaderEntry VERB = new RequestHeaderEntry( "Verb" );
 	public static final RequestHeaderEntry ACCEPT = new RequestHeaderEntry( "Accept" );
 	public static final RequestHeaderEntry GREETING = new RequestHeaderEntry( "Greeting" );
 	public static final RequestHeaderEntry HOST = new RequestHeaderEntry( "Host" );

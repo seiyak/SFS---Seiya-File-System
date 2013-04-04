@@ -167,6 +167,17 @@ public class RequestMessage extends Request {
 
 		String[] each = headerStr.split( ": " );
 		header.put( (HeaderEntry) getRequestMessageMap().get( each[0] ), each[1] );
+		putAdditionalHeader();
+	}
+
+	/**
+	 * Adds some entries to header Map. those added in this method are parts of Http request header but they are not
+	 * header entries.
+	 */
+	private void putAdditionalHeader() {
+		header.put( RequestHeaderEntry.VERB, verb );
+		header.put( RequestHeaderEntry.CONTEXT_PATH, contextPath );
+		header.put( RequestHeaderEntry.REQUEST_HTTP_VERSION, requestHTTPVersion );
 	}
 
 	/**
