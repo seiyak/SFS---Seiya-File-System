@@ -94,6 +94,7 @@ public class HTTPMessageReader extends AbstractHTTPReader {
 
 		if ( ( contentHeaderIndex == -1 ) && ( chunkedHeaderIndex == -1 ) ) {
 			// no message body attached
+			messageStat.checkAndSetHeader( requestMessage );
 			messageStat.setMessageBodyLength( 0 );
 			messageStat.setMessageBodyContained( false );
 			messageStat.setEndOfMessage( true );
