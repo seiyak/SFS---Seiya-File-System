@@ -108,6 +108,8 @@ public class RequestMessage extends Request {
 	 */
 	public RequestMessage extractMessage(String request) {
 
+		header.clear();
+		
 		String[] res = request.split( Ending.CRLF.toString() );
 		if ( ( res == null ) || ( res.length == 1 ) ) {
 			content = "";
