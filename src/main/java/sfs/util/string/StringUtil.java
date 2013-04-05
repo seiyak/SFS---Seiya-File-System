@@ -76,7 +76,7 @@ public class StringUtil {
 			current++;
 		}
 
-		if ( query.charAt( previous - 1 ) == '=' ) {
+		if (previous > 0 && query.charAt( previous - 1 ) == '=' ) {
 			// no '&' found
 			map.put( key, query.substring( previous, query.length() ) );
 		}
