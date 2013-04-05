@@ -75,6 +75,8 @@ public class ResponseMessage extends Response {
 	 */
 	public ResponseMessage extractMessage(String response) {
 
+		header.clear();
+		
 		String[] res = response.split( Ending.CRLF.toString() );
 		if ( ( res == null ) || ( res.length == 1 ) ) {
 			content = "";
