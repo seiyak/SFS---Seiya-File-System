@@ -38,6 +38,21 @@ public class StringUtilTest {
 		checkEachEntry( res2, expected2 );
 	}
 
+	@Test
+	public void testQueryAsMap2() {
+
+		Map<String, String> res1 = StringUtil.getQueryAsMap( "/sample1/verb?name=name1&password=234" );
+		Map<String, String> expected1 = new LinkedHashMap<String, String>();
+		expected1.put( "name", "name1" );
+		expected1.put( "password", "234" );
+		checkEachEntry( res1, expected1 );
+
+		Map<String, String> res2 = StringUtil.getQueryAsMap( "/sample2/verb?name=name2" );
+		Map<String, String> expected2 = new LinkedHashMap<String, String>();
+		expected2.put( "name", "name2" );
+		checkEachEntry( res2, expected2 );
+	}
+
 	private void checkEachEntry(Map<String, String> res, Map<String, String> expected) {
 
 		assertTrue( "expecting res.size()==expected.size(), but found res.size()==" + res.size() + " expected.size()=="

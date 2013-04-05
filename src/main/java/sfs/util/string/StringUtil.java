@@ -57,6 +57,10 @@ public class StringUtil {
 		String key = "", value = "";
 		while ( current < query.length() ) {
 
+			if ( query.charAt( current ) == '?' ) {
+				previous = current + 1;
+			}
+
 			if ( query.charAt( current ) == '=' ) {
 				key = query.substring( previous, current );
 				previous = current + 1;
