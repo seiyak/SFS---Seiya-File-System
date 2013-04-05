@@ -5,6 +5,7 @@ import java.util.LinkedList;
 import java.util.Map;
 
 import sfs.header.http.HeaderEntry;
+import sfs.header.http.RequestHeaderEntry;
 import sfs.list.WrappedList;
 import sfs.request.http.RequestMessage;
 import sfs.util.string.StringUtil;
@@ -21,6 +22,7 @@ public class MessageStat {
 	private int messageBodyStartIndex = -1;
 	private boolean headerHasBeenSet;
 	private Map<HeaderEntry,String> header = null;
+	private Map<String,String> queryParameters = null;
 	private String boundary = "";
 	private boolean fileUploadable = false;
 	private int currentContentDispositionIndex = -1;
@@ -168,6 +170,14 @@ public class MessageStat {
 		return header;
 	}
 
+	public void setQueryParameters(Map<String, String> queryParameters) {
+		this.queryParameters = queryParameters;
+	}
+
+	public Map<String, String> getQueryParameters() {
+		return queryParameters;
+	}
+
 	public String getBoundary() {
 		return boundary;
 	}
@@ -190,6 +200,7 @@ public class MessageStat {
 	public void checkAndSetHeader(RequestMessage requestMessage) {
 		if ( header == null ) {
 			setHeader( requestMessage.extractMessage( message ).getHeader() );
+			queryParameters = StringUtil.getQueryAsMap( header.get( RequestHeaderEntry.CONTEXT_PATH ) );
 		}
 	}
 
@@ -290,6 +301,7 @@ public class MessageStat {
 		messageBodyStartIndex = 0;
 		headerHasBeenSet = false;
 		clearHeader();
+		clearQueryParameters();
 		boundary = "";
 		fileUploadable = false;
 		currentContentDispositionIndex = -1;
@@ -305,6 +317,16 @@ public class MessageStat {
 		if ( header != null ) {
 			header.clear();
 			header = null;
+		}
+	}
+
+	/**
+	 * Clears query parameters.
+	 */
+	private void clearQueryParameters() {
+
+		if ( queryParameters != null ) {
+			queryParameters = null;
 		}
 	}
 
