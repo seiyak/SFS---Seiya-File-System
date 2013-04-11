@@ -286,6 +286,10 @@ public class MessageStat {
 	public void setCurrentContentStartIndex(int currentContentStartIndex) {
 		this.currentContentStartIndex = currentContentStartIndex;
 	}
+
+	public String getContextPathWithoutQuery() {
+		return contextPathWithoutQuery;
+	}
 	
 	public boolean isEndOfMessage(int index, int offset){
 		return index == message.length() - offset;
