@@ -6,19 +6,23 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
 
+import sfs.header.http.RequestHeaderEntry;
+import sfs.server.http.standalone.handler.contextpath.ContextPathHandler;
 import sfs.stat.message.MessageStat;
 
 public class Server {
 
-	private int count = 0;
 	private int port;
 	private final ServerSocketChannel socket;
 	private final Selector selector;
 	private final HTTPMessageReader requestReader;
+	private final Map<String, ContextPathHandler> contextPathMap;
 	private static Logger log = Logger.getLogger( Server.class );
 
 	public Server(String host, int port) throws IOException {
@@ -29,6 +33,7 @@ public class Server {
 		selector = Selector.open();
 		SelectionKey key = socket.register( selector, SelectionKey.OP_ACCEPT );
 		requestReader = new HTTPMessageReader( 10 );
+		contextPathMap = new HashMap<String, ContextPathHandler>();
 
 		startPoll( key );
 	}
@@ -41,6 +46,21 @@ public class Server {
 		selector = Selector.open();
 		SelectionKey key = socket.register( selector, SelectionKey.OP_ACCEPT );
 		requestReader = new HTTPMessageReader( bufferSize );
+		contextPathMap = new HashMap<String, ContextPathHandler>();
+
+		startPoll( key );
+	}
+
+	public Server(String host, int port, int bufferSize, Map<String, ContextPathHandler> contextPathMap)
+			throws IOException {
+		this.port = port;
+		socket = ServerSocketChannel.open();
+		socket.configureBlocking( false );
+		socket.socket().bind( new InetSocketAddress( host, port ) );
+		selector = Selector.open();
+		SelectionKey key = socket.register( selector, SelectionKey.OP_ACCEPT );
+		requestReader = new HTTPMessageReader( bufferSize );
+		this.contextPathMap = contextPathMap;
 
 		startPoll( key );
 	}
@@ -51,6 +71,7 @@ public class Server {
 		MessageStat messageStat = null;
 		ServerSocketChannel so = null;
 		SocketChannel sc = null;
+
 		while ( true ) {
 			try {
 				if ( key.selector().select() <= 0 ) {
@@ -65,11 +86,14 @@ public class Server {
 					itr.remove();
 
 					if ( ready.isValid() && ready.isReadable() ) {
-						messageStat = requestReader.read( (SocketChannel) ready.channel() );
+						sc = (SocketChannel) ready.channel();
+						messageStat = requestReader.read( sc );
 
 						if ( messageStat.isEndOfMessage() ) {
-							log.debug( "count: " + ( ++count ) + " from: " + ( (SocketChannel) ready.channel() )
-									+ " got all the message: " + messageStat.getMessage() );
+							handle( sc, messageStat );
+							sc.close();
+							//TODO need to delete message stat entry ??
+							//TODO with this way, Connection: keeyp-alive is meaningless ?
 						}
 					}
 					else if ( ready.isValid() && ready.isAcceptable() ) {
@@ -94,9 +118,65 @@ public class Server {
 	public int getPort() {
 		return port;
 	}
+
+	/**
+	 * Clears contextPathMap.
+	 */
+	private void clearContextPathMap() {
+		contextPathMap.clear();
+	}
+
+	/**
+	 * Handles request corresponding to the specified context paths.
+	 * 
+	 * @param socketChannel
+	 *            Used to communicate between client and server.
+	 * @param messageStat
+	 *            Holds necessary request data to act on the context paths.
+	 */
+	private void handle(SocketChannel socketChannel, MessageStat messageStat) {
+
+		log.debug("stat: " + messageStat.getHeader().get( RequestHeaderEntry.CONTEXT_PATH ));
+		ContextPathHandler contextPathHandler = contextPathMap.get( messageStat.getHeader().get(
+				RequestHeaderEntry.CONTEXT_PATH ) );
+		if ( contextPathHandler != null ) {
+			contextPathHandler.handle( socketChannel, messageStat );
+		}else{
+			//TODO could do something for this faster using some string retrieve algorithm ?
+			log.warn( "no exact match found in the context paths. about to it with StringUtil.startsWith() ..." );
+		
+		}
+	}
 	
-	public void close(){
-		if(selector.isOpen()){
+	/**
+	 * Adds context path and the corresponding action to the path.
+	 * 
+	 * @param contextPath
+	 *            Context path on the Http request header.
+	 * @param contextPathHandler
+	 *            Actions on the specified context path.
+	 */
+	public void addContextPathHandler(String contextPath, ContextPathHandler contextPathHandler) {
+
+		contextPathMap.put( contextPath, contextPathHandler );
+	}
+
+	/**
+	 * Removes context path and the corresponding action mapping.
+	 * 
+	 * @param contextPath
+	 *            Unique context path.
+	 */
+	public void removeContextPathHandler(String contextPath) {
+
+		contextPathMap.remove( contextPath );
+	}
+
+	/**
+	 * Closes connection and clears internal states.
+	 */
+	public void close() {
+		if ( selector.isOpen() ) {
 			try {
 				selector.close();
 			}
@@ -105,8 +185,8 @@ public class Server {
 				e.printStackTrace();
 			}
 		}
-		
-		if(socket.isOpen()){
+
+		if ( socket.isOpen() ) {
 			try {
 				socket.close();
 			}
@@ -115,5 +195,7 @@ public class Server {
 				e.printStackTrace();
 			}
 		}
+
+		clearContextPathMap();
 	}
 }
