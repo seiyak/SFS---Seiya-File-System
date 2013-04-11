@@ -28,6 +28,7 @@ public class MessageStat {
 	private int currentContentDispositionIndex = -1;
 	private int currentContentStartIndex = -1;
 	private boolean contentDispositionSet = false;
+	private String contextPathWithoutQuery = "";
 	private final WrappedList<ContentDisposition> contentDispositions;
 	private final static String BOUNDARY_PREFIX = "--";
 
@@ -201,6 +202,7 @@ public class MessageStat {
 		if ( header == null ) {
 			setHeader( requestMessage.extractMessage( message ).getHeader() );
 			queryParameters = StringUtil.getQueryAsMap( header.get( RequestHeaderEntry.CONTEXT_PATH ) );
+			contextPathWithoutQuery = requestMessage.getContextPathWithoutQuery();
 		}
 	}
 
