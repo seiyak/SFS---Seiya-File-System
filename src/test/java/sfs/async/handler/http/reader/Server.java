@@ -2,6 +2,7 @@ package sfs.async.handler.http.reader;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
@@ -13,6 +14,8 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 
 import sfs.header.http.RequestHeaderEntry;
+import sfs.server.http.page.notfound.NotFoundWriter;
+import sfs.server.http.page.notfound.SimpleNotFoundWriter;
 import sfs.server.http.standalone.handler.contextpath.ContextPathHandler;
 import sfs.stat.message.MessageStat;
 
@@ -136,16 +139,29 @@ public class Server {
 	 */
 	private void handle(SocketChannel socketChannel, MessageStat messageStat) {
 
-		log.debug("stat: " + messageStat.getHeader().get( RequestHeaderEntry.CONTEXT_PATH ));
-		ContextPathHandler contextPathHandler = contextPathMap.get( messageStat.getHeader().get(
-				RequestHeaderEntry.CONTEXT_PATH ) );
+		log.debug( "stat: " + messageStat.getHeader().get( RequestHeaderEntry.CONTEXT_PATH ) );
+		ContextPathHandler contextPathHandler = getCorrespondingHandler( socketChannel, messageStat );
+
 		if ( contextPathHandler != null ) {
 			contextPathHandler.handle( socketChannel, messageStat );
-		}else{
-			//TODO could do something for this faster using some string retrieve algorithm ?
-			log.warn( "no exact match found in the context paths. about to it with StringUtil.startsWith() ..." );
-		
 		}
+		else {
+			//TODO favicon.ico handler is needed
+			if(messageStat.getContextPathWithoutQuery().equals("/favicon.ico")){
+				log.warn( "currently favicon is not supported. will be done soon." );
+			}else{
+				contextPathMap.get( "NotFound" ).handle( socketChannel, messageStat );
+			}
+		}
+	}
+
+	private ContextPathHandler getCorrespondingHandler(SocketChannel socketChannel, MessageStat messageStat) {
+
+		ContextPathHandler contextPathHandler = contextPathMap.get( messageStat.getHeader().get(
+				RequestHeaderEntry.CONTEXT_PATH ) );
+
+		return contextPathHandler != null ? contextPathHandler : contextPathMap.get( messageStat
+				.getContextPathWithoutQuery() );
 	}
 	
 	/**
