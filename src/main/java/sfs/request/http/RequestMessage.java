@@ -22,10 +22,12 @@ public class RequestMessage extends Request {
 	private final Map requestMessageMap;
 	private String verb;
 	private String contextPath;
+	private String contextPathWithoutQuery;
 	private String requestHTTPVersion;
 	private final Map<HeaderEntry,String> header;
 	private String content;
 	private static final String HTTP_VERSION = "HTTP/1.1";
+	private static final int QUERY_SEPARATOR = 63;
 
 	public RequestMessage(){
 		requestMessageMap = ReflectionUtil.getStaticMembers( RequestHeaderEntry.class, false );
@@ -50,6 +52,14 @@ public class RequestMessage extends Request {
 
 	public void setContextPath(String contextPath) {
 		this.contextPath = contextPath;
+	}
+
+	public String getContextPathWithoutQuery() {
+		return contextPathWithoutQuery;
+	}
+
+	public void setContextPathWithoutQuery(String contextPathWithoutQuery) {
+		this.contextPathWithoutQuery = contextPathWithoutQuery;
 	}
 
 	public String getRequestHTTPVersion() {
@@ -156,7 +166,21 @@ public class RequestMessage extends Request {
 		String[] each = statusLine.split( " " );
 		verb = each[0];
 		contextPath = each[1];
+		contextPathWithoutQuery = setUpContextPathWithoutQuery( contextPath );
 		requestHTTPVersion = each[2];
+	}
+
+	/**
+	 * Sets up context path without query portion when it exists.
+	 * 
+	 * @param contextPath
+	 *            Original context path specified by a client.
+	 * @return Context path without query portion.
+	 */
+	private String setUpContextPathWithoutQuery(String contextPath) {
+
+		int separatorIndex = contextPath.indexOf( QUERY_SEPARATOR );
+		return separatorIndex == -1 ? contextPath : contextPath.substring( 0, separatorIndex );
 	}
 
 	/**
