@@ -29,8 +29,14 @@ public abstract class Concatenable {
 	public String getJson() {
 
 		JSONObject json = new JSONObject();
-		for ( Concatenable jsonnable : jsonnables ) {
-			jsonnable.putJson( json );
+		
+		if ( jsonnables.isEmpty() ) {
+			putJson( json );
+		}
+		else {
+			for ( Concatenable jsonnable : jsonnables ) {
+				jsonnable.putJson( json );
+			}
 		}
 
 		return json.toString();
