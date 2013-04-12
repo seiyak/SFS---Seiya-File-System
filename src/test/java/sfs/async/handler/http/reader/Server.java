@@ -2,7 +2,6 @@ package sfs.async.handler.http.reader;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
@@ -14,9 +13,7 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 
 import sfs.header.http.RequestHeaderEntry;
-import sfs.server.http.page.notfound.NotFoundWriter;
-import sfs.server.http.page.notfound.SimpleNotFoundWriter;
-import sfs.server.http.standalone.handler.contextpath.ContextPathHandler;
+import sfs.server.http.handler.contextpath.ContextPathHandler;
 import sfs.stat.message.MessageStat;
 
 public class Server {
