@@ -245,7 +245,7 @@ public class StringUtil {
 	 *            Char array as pattern.
 	 * @return Map having each char as the keys and number of shifts as the values.
 	 */
-	public static Map<Character, Integer> calculateShift(char[] chars) {
+	private static Map<Character, Integer> calculateShift(char[] chars) {
 
 		Map<Character, Integer> map = new HashMap<Character, Integer>();
 		for ( int i = chars.length - 1; i >= 0; i-- ) {
@@ -269,7 +269,7 @@ public class StringUtil {
 	 *            Map holding shifts for each character within the pattern.
 	 * @return True if the pattern is found, false otherwise.
 	 */
-	public static boolean doSearch(char[] strChar, char[] patternChar, Map<Character, Integer> shiftMapFromLast) {
+	private static boolean doSearch(char[] strChar, char[] patternChar, Map<Character, Integer> shiftMapFromLast) {
 
 		int strIndex = patternChar.length - 1;
 		int numOfShift = 0;
@@ -299,7 +299,7 @@ public class StringUtil {
 	 *            Map holding shifts for each character within the pattern.
 	 * @return The first index of the occurrence if the pattern is found, -1 otherwise.
 	 */
-	public static int doSearchIndexOf(char[] strChar, char[] patternChar, Map<Character, Integer> shiftMapFromLast) {
+	private static int doSearchIndexOf(char[] strChar, char[] patternChar, Map<Character, Integer> shiftMapFromLast) {
 
 		int strIndex = patternChar.length - 1;
 		int numOfShift = 0;
