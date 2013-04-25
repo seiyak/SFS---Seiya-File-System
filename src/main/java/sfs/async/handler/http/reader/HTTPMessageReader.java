@@ -47,18 +47,9 @@ public class HTTPMessageReader extends AbstractHTTPReader {
 			messageStat.checkAndSetHeaderAndBoundary( BOUNDARY_KEY, requestMessage );
 
 			if ( messageStat.getMessageBodyType().equals( HeaderEntry.CONTENT_LENGTH.toString() ) ) {
-
-				// TODO should read by string or one by one as char ?
-				for ( char c : message.toCharArray() ) {
-
-					if ( messageStat.getMessageBodyLength() == 0 ) {
-						break;
-					}
-
-					messageStat.setMessage( messageStat.getMessage() + c );
-					messageStat.setLength( messageStat.getLength() + 1 );
-					messageStat.setMessageBodyLength( messageStat.getMessageBodyLength() - 1 );
-				}
+				messageStat.setMessage( messageStat.getMessage() + message );
+				messageStat.setLength( messageStat.getLength() + message.length() );
+				messageStat.setMessageBodyLength( messageStat.getMessageBodyLength() - message.length() );
 
 				checkAndSetContentDisposition( messageStat );
 				if ( !messageStat.isContentDispositionSet() && messageStat.getMessageBodyLength() == 0 ) {
@@ -111,7 +102,7 @@ public class HTTPMessageReader extends AbstractHTTPReader {
 			int contentLengthIndex = StringUtil.searchFirstIndexOfByMB( messageStat.getMessage(),
 					Ending.CRLF.toString(), contentHeaderIndex );
 
-			messageStat.setMessageBodyLength( Integer.valueOf( String.valueOf( Arrays.copyOfRange( messageStat
+			messageStat.setMessageBodyLength( Integer.parseInt( String.valueOf( Arrays.copyOfRange( messageStat
 					.getMessage().toCharArray(), contentHeaderIndex + 1, contentLengthIndex ) ) )
 					- ( messageStat.getLength() - messageStat.getMessageBodyStartIndex() ) );
 
