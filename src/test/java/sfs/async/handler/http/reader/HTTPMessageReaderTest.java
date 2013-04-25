@@ -1,5 +1,6 @@
 package sfs.async.handler.http.reader;
 
+import static org.junit.Assert.*;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -232,7 +233,9 @@ public class HTTPMessageReaderTest {
 	
 	@Test
 	public void testFindEndOfMessageWithData2() {
-
+		
+		fail("'chunked' type is not implemented yet");
+		
 		List<ContentDisposition> contentDispositions = new LinkedList<ContentDisposition>();
 		String boundary = "HHHH";
 		String multiForm = generateMultipartForm( boundary, contentDispositions );
