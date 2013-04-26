@@ -9,6 +9,7 @@ public class HeaderEntry {
 	public static final HeaderEntry TRANSFER_ENCODING = new HeaderEntry( "Transfer-Encoding" );
 	public static final HeaderEntry CACHE_CONTROL = new HeaderEntry( "Cache-Control" );
 	public static final HeaderEntry CONNECTION = new HeaderEntry( "Connection" );
+	public static final HeaderEntry COOKIE = new HeaderEntry( "Cookie" );
 
 	public HeaderEntry(String entry) {
 		this.entry = entry;
